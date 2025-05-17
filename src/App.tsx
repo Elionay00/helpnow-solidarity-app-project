@@ -1,7 +1,11 @@
+// Importa os componentes de roteamento do React Router e do Ionic
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
+
+// Importa as páginas do aplicativo
+import Login from './Autentication/Login';
+import Home from './pages/Home'; 
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -13,22 +17,7 @@ import '@ionic/react/css/typography.css';
 
 /* Optional CSS utils that can be commented out */
 import '@ionic/react/css/padding.css';
-import '@ionic/react/css/float-elements.css';
-import '@ionic/react/css/text-alignment.css';
-import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
-import '@ionic/react/css/display.css';
-
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
-import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
@@ -39,12 +28,14 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        <Route exact path="/home">
-          <Home />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/home" />
-        </Route>
+        {/* Rota de Login */}
+        <Route exact path="/login" component={Login} />
+
+        {/* Rota da Home */}
+        <Route exact path="/home" component={Home} />
+
+        {/* Redirecionar somente a rota raiz para /login */}
+        <Route exact path="/" render={() => <Redirect to="/login" />} />
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>
