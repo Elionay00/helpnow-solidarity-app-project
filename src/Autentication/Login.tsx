@@ -17,6 +17,8 @@ import {
 } from '@ionic/react';  // Importa os componentes da biblioteca Ionic
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom'; // Hook para navegação entre páginas
+import helpnowLogo from '../images/helpnow.png'; // Caminho relativo à pasta do componente
+
 
 const Login: React.FC = () => {
   // Declara os estados para email e senha
@@ -25,7 +27,7 @@ const Login: React.FC = () => {
   const history = useHistory(); // Permite redirecionar o usuário para outra página
 
   const handleLogin = () => {
-     // Ação disparada ao clicar no botão "Entrar"
+    // Ação disparada ao clicar no botão "Entrar"
     console.log('Login acionado para:', { email, password });
     history.push('/home'); // Redireciona para a página /home
   };
@@ -44,20 +46,32 @@ const Login: React.FC = () => {
         <IonGrid>
           <IonRow className="ion-justify-content-center ion-align-items-center" style={{ height: '100%' }}>
             <IonCol size="12" sizeMd="6" sizeLg="4">
-               {/* Cartão centralizado com os campos */}
+              {/* Cartão centralizado com os campos */}
               <IonCard className="ion-padding">
                 <IonCardContent>
-                    {/* Título de boas-vindas */}
+                  
+                  {/* Boas-vindas com imagem */}
                   <IonText color="primary">
-                    <h2 className="ion-text-center" style={{ fontWeight: 'bold', fontSize: '1.5rem', marginBottom: '8px', textAlign: 'center' }}>
-                    <span></span>Bem-vindo ao ajuda já</h2>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginBottom: '16px'
+                    }}>
+                      <img
+                        src={helpnowLogo}
+                        alt="Logo Ajuda Já"
+                        style={{ height: '200px', objectFit: 'contain' }}
+                      />
+                    </div>
                   </IonText>
 
-                    {/* Campo de Email */}
+
+                  {/* Campo de Email */}
                   <IonItem className="ion-margin-top">
-                <IonLabel position="floating" style={{ marginBottom: '10px', fontSize: '16px', color: '#000', }}>
-                Email
-                </IonLabel>
+                    <IonLabel position="floating" style={{ marginBottom: '10px', fontSize: '16px', color: '#000', }}>
+                      Email
+                    </IonLabel>
                     <IonInput
                       type="email"
                       value={email}
