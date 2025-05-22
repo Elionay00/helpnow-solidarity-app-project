@@ -14,52 +14,38 @@ import {
   IonCard,
   IonCardContent,
   IonText,
-} from '@ionic/react';  // Importa os componentes da biblioteca Ionic
-import { useState } from 'react';
-import { useHistory } from 'react-router-dom'; // Hook para navegação entre páginas
-import helpnowLogo from '../images/helpnow.png'; // Caminho relativo à pasta do componente
+} from '@ionic/react';
 
+import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import helpnowLogo from '../images/helpnow.png'; // Ajuste o caminho conforme necessário
 
 const Login: React.FC = () => {
-  // Declara os estados para email e senha
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const history = useHistory(); // Permite redirecionar o usuário para outra página
+  const history = useHistory();
 
- const handleLogin = () => {
-  if (!email || !password) {
-    alert('Por favor, preencha todos os campos.');
-    return;
-  }
-
-  if (!authenticateUser(email, password)) {
-    alert('Email ou senha incorretos.');
-    return;
-  }
-
-  console.log('Login bem-sucedido:', { email });
-  history.push('/home');
-};
+  const handleLogin = () => {
+    // Sem validação por enquanto — apenas navega para /home
+    history.push('/home');
+  };
 
   return (
     <IonPage>
-      {/* Cabeçalho da página */}
       <IonHeader>
         <IonToolbar>
           <IonTitle>Minha conta</IonTitle>
         </IonToolbar>
       </IonHeader>
+      
 
-      {/* Conteúdo principal */}
       <IonContent>
         <IonGrid>
           <IonRow className="ion-justify-content-center ion-align-items-center" style={{ height: '100%' }}>
             <IonCol size="12" sizeMd="6" sizeLg="4">
-              {/* Cartão centralizado com os campos */}
               <IonCard className="ion-padding">
                 <IonCardContent>
-                  
-                  {/* Boas-vindas com imagem */}
+
                   <IonText color="primary">
                     <div style={{
                       display: 'flex',
@@ -75,39 +61,40 @@ const Login: React.FC = () => {
                     </div>
                   </IonText>
 
-
-                  {/* Campo de Email */}
+                  {/* Email */}
                   <IonItem className="ion-margin-top">
-                    <IonLabel position="floating" style={{ marginBottom: '10px', fontSize: '16px', color: '#000', }}>
+                    <IonLabel position="floating" style={{ fontSize: '16px', color: '#000', marginBottom: '6px' }}>
                       Email
                     </IonLabel>
                     <IonInput
                       type="email"
                       value={email}
                       onIonChange={e => setEmail(e.detail.value!)}
-                      placeholder='Digite um email válido...'
+                      placeholder="Digite seu email..."
                     />
                   </IonItem>
 
-                  {/* Campo de Senha */}
+                  {/* Senha */}
                   <IonItem className="ion-margin-top">
-                    <IonLabel position="floating" style={{ marginBottom: '10px', fontSize: '16px', color: '#000', }}>Senha</IonLabel>
+                    <IonLabel position="floating" style={{ fontSize: '16px', color: '#000', marginBottom: '6px' }}>
+                      Senha
+                    </IonLabel>
                     <IonInput
                       type="password"
                       value={password}
                       onIonChange={e => setPassword(e.detail.value!)}
-                      placeholder='Digite sua senha...'
+                      placeholder="Digite sua senha..."
                     />
                   </IonItem>
 
-                  {/* Botão de Entrar, desabilitado se email ou senha estiverem vazios */}
+                  {/* Botão Entrar */}
                   <IonButton
                     expand="block"
                     className="ion-margin-top ion-margin-bottom"
-                    onClick={handleLogin}
-                    disabled={!email || !password}>
+                    onClick={handleLogin}>
                     Entrar
                   </IonButton>
+
                 </IonCardContent>
               </IonCard>
             </IonCol>
