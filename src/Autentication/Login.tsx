@@ -26,11 +26,20 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const history = useHistory(); // Permite redirecionar o usuário para outra página
 
-  const handleLogin = () => {
-    // Ação disparada ao clicar no botão "Entrar"
-    console.log('Login acionado para:', { email, password });
-    history.push('/home'); // Redireciona para a página /home
-  };
+ const handleLogin = () => {
+  if (!email || !password) {
+    alert('Por favor, preencha todos os campos.');
+    return;
+  }
+
+  if (!authenticateUser(email, password)) {
+    alert('Email ou senha incorretos.');
+    return;
+  }
+
+  console.log('Login bem-sucedido:', { email });
+  history.push('/home');
+};
 
   return (
     <IonPage>
