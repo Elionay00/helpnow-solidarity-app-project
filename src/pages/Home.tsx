@@ -19,9 +19,6 @@ const Home: React.FC = () => {
           <IonTitle>Início</IonTitle>
           {/* Botão de Login */}
           <IonButtons slot="end">
-            <IonButton onClick={goToLogin}>
-              Login
-            </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>

@@ -18,8 +18,8 @@ import {
 
 import { useState, useEffect, useRef } from "react"; // React hooks para estado, efeitos colaterais e referências
 import { useHistory } from "react-router-dom"; // Hook para navegação entre rotas
-import { registerSchema } from "../utils/validationSchemas"; // Esquema de validação com yup
-import { applyPhoneMask, applyCpfMask } from "../utils/masks"; // Funções para aplicar máscaras de telefone e CPF nos inputs
+import { registerSchema } from "../utils/validationSchemas";
+import IMask from 'imask'; // Esquema de formato de campos
 import helpnowLogo from "../images/helpnow.png"; // Importação do logo da aplicação (imagem)
 
 const Register: React.FC = () => {
@@ -37,17 +37,36 @@ const Register: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Referências para inputs específicos para aplicar máscaras
-  const cpfRef = useRef<HTMLIonInputElement>(null);
-  const telRef = useRef<HTMLIonInputElement>(null);
+  const cpfInputRef = useRef<HTMLIonInputElement>(null);
+  const telInputRef = useRef<HTMLIonInputElement>(null);
 
   // useEffect para aplicar as máscaras assim que os inputs estiverem disponíveis no DOM
   useEffect(() => {
-    const cpfInput = cpfRef.current?.querySelector("input"); // seleciona o input interno do IonInput do CPF
-    const telInput = telRef.current?.querySelector("input"); // seleciona o input interno do IonInput do telefone
+   const cpfElement = cpfInputRef.current; // seleciona o input interno do IonInput do CPF
+   const telElement = telInputRef.current; // seleciona o input interno do IonInput do telefone
 
-    if (cpfInput) applyCpfMask(cpfInput); // aplica máscara de CPF
-    if (telInput) applyPhoneMask(telInput); // aplica máscara de telefone
+     const cpfMask = IMask(cpfElement!, {
+      mask: '000.000.000-00'
+    });
+
+    cpfMask.on('accept', () => {
+      setCpf(cpfMask.value);
+    });
+
+    const telMask = IMask(telElement!, {
+      mask: ['(00) 0000-0000', '(00) 00000-0000']
+    });
+
+    telMask.on('accept', () => {
+      setTelefone(telMask.value);
+    });
+
+    return () => {
+      cpfMask.destroy();
+      telMask.destroy();
+    };
   }, []);
+
 
   // Função que será chamada quando o usuário tentar se cadastrar
   const handleCadastro = async () => {
@@ -140,7 +159,7 @@ const Register: React.FC = () => {
                         type="email"
                         value={email}
                         onIonChange={(e) => setEmail(e.detail.value!)}
-                        placeholder="Digite uma email válido"
+                        placeholder="Digite um email válido"
                       />
                     </IonItem>
                     {errors.email && (
@@ -162,7 +181,7 @@ const Register: React.FC = () => {
                         CPF
                       </IonLabel>
                       <IonInput
-                        ref={cpfRef}
+                        ref={cpfInputRef}
                         value={cpf}
                         onIonChange={(e) => setCpf(e.detail.value!)}
                         placeholder="Digite seu CPF"
@@ -187,7 +206,7 @@ const Register: React.FC = () => {
                         Telefone
                       </IonLabel>
                       <IonInput
-                        ref={telRef}
+                        ref={telInputRef}
                         value={telefone}
                         onIonChange={(e) => setTelefone(e.detail.value!)}
                         placeholder="Digite seu telefone"
