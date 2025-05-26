@@ -14,18 +14,24 @@ import {
   IonCard,
   IonCardContent,
   IonText,
-} from "@ionic/react"; // Importação dos componentes principais do Ionic React usados na tela
+  useIonToast,
+} from "@ionic/react";
 
-import { useState, useEffect, useRef } from "react"; // React hooks para estado, efeitos colaterais e referências
-import { useHistory } from "react-router-dom"; // Hook para navegação entre rotas
+import React, { useState, useEffect, useRef } from "react";
+import { useHistory } from "react-router-dom";
 import { registerSchema } from "../utils/validationSchemas";
-import IMask from 'imask'; // Esquema de formato de campos
-import helpnowLogo from "../images/helpnow.png"; // Importação do logo da aplicação (imagem)
+import IMask from 'imask';
+import helpnowLogo from "../images/helpnow.png";
+
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase/firebaseConfig';
+
 
 const Register: React.FC = () => {
-  const history = useHistory(); // Hook para navegação
+  const history = useHistory();
+  const [presentToast] = useIonToast();
 
-  // Estados para armazenar os valores dos inputs do formulário
   const [nomeCompleto, setNomeCompleto] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
@@ -33,61 +39,144 @@ const Register: React.FC = () => {
   const [senha, setSenha] = useState("");
   const [confirmaSenha, setConfirmaSenha] = useState("");
 
-  // Estado para armazenar os erros de validação dos campos
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Referências para inputs específicos para aplicar máscaras
   const cpfInputRef = useRef<HTMLIonInputElement>(null);
   const telInputRef = useRef<HTMLIonInputElement>(null);
 
-  // useEffect para aplicar as máscaras assim que os inputs estiverem disponíveis no DOM
+  const cpfIMaskInstance = useRef<IMask.InputMask<IMask.AnyMaskedOptions> | null>(null);
+  const telIMaskInstance = useRef<IMask.InputMask<IMask.AnyMaskedOptions> | null>(null);
+
+
+  const showToast = (message: string, color: string = 'danger') => {
+    presentToast({
+      message,
+      duration: 3000,
+      color,
+      position: 'bottom',
+    });
+  };
+
   useEffect(() => {
-   const cpfElement = cpfInputRef.current; // seleciona o input interno do IonInput do CPF
-   const telElement = telInputRef.current; // seleciona o input interno do IonInput do telefone
+    const setupMasks = async () => {
+        const cpfNativeInput = await cpfInputRef.current?.getInputElement();
+        const telNativeInput = await telInputRef.current?.getInputElement();
 
-     const cpfMask = IMask(cpfElement!, {
-      mask: '000.000.000-00'
-    });
+        if (cpfNativeInput) {
+            cpfIMaskInstance.current = IMask(cpfNativeInput, {
+                mask: '000.000.000-00'
+            });
+            cpfIMaskInstance.current.on('accept', () => {
+                setCpf(cpfIMaskInstance.current!.unmaskedValue);
+            });
+        }
 
-    cpfMask.on('accept', () => {
-      setCpf(cpfMask.value);
-    });
+        if (telNativeInput) {
+            telIMaskInstance.current = IMask(telNativeInput, {
+                mask: ['(00) 0000-0000', '(00) 00000-0000']
+            });
+            telIMaskInstance.current.on('accept', () => {
+                setTelefone(telIMaskInstance.current!.unmaskedValue);
+            });
+        }
+    };
 
-    const telMask = IMask(telElement!, {
-      mask: ['(00) 0000-0000', '(00) 00000-0000']
-    });
-
-    telMask.on('accept', () => {
-      setTelefone(telMask.value);
-    });
+    setupMasks();
 
     return () => {
-      cpfMask.destroy();
-      telMask.destroy();
+        if (cpfIMaskInstance.current) {
+            cpfIMaskInstance.current.destroy();
+            cpfIMaskInstance.current = null;
+        }
+        if (telIMaskInstance.current) {
+            telIMaskInstance.current.destroy();
+            telIMaskInstance.current = null;
+        }
     };
   }, []);
 
 
-  // Função que será chamada quando o usuário tentar se cadastrar
   const handleCadastro = async () => {
     const data = { nomeCompleto, email, cpf, telefone, senha, confirmaSenha };
+    console.log('Dados do formulário para cadastro (ANTES DE TUDO):', data);
 
     try {
-      // Valida os dados usando o esquema importado, abortando só no final para pegar todos os erros
-      await registerSchema.validate(data, { abortEarly: false });
-      setErrors({}); // limpa os erros caso a validação passe
-      history.push("/home"); // redireciona para a tela principal após cadastro bem sucedido
+      // **DEBUG: COMENTADO TEMPORARIAMENTE para isolar o problema no Firebase Auth**
+      // await registerSchema.validate(data, { abortEarly: false });
+      // setErrors({});
+      console.log('Validação YUP COMENTADA ou supostamente passada.'); // Log para confirmar que esta linha é alcançada
+
+      // **ADICIONE ESTE LOG BEM ANTES DA CHAMADA AO FIREBASE AUTH**
+      console.log('PREPARANDO PARA CHAMAR createUserWithEmailAndPassword...');
+
+      // **DEBUG: Adicionando verificação explícita de email e senha**
+      if (!email || !senha) {
+        console.error('Email ou senha estão vazios antes da chamada ao Firebase Auth!');
+        showToast('Email e senha são obrigatórios para cadastro.', 'danger');
+        return; // Interrompe a execução se estiverem vazios
+      }
+      console.log(`Tentando criar usuário com email: "${email}" e senha (parcial): "${senha.substring(0, 3)}..."`); // Log da tentativa
+
+      // Tente criar o usuário no Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+      const user = userCredential.user;
+      console.log('Usuário criado no Auth:', user); // Este log precisa aparecer!
+
+      // Se o usuário for criado, tente salvar no Firestore
+      if (user) {
+        console.log('Tentando salvar dados no Firestore para UID:', user.uid);
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          email: user.email,
+          fullName: nomeCompleto,
+          cpf: cpf,
+          phone: telefone,
+          createdAt: new Date(),
+        });
+        console.log('Dados salvos no Firestore.');
+      }
+
+      showToast('Cadastro realizado com sucesso!', 'success');
+      history.push("/home");
+
     } catch (err: any) {
-      const validationErrors: Record<string, string> = {};
-      // percorre os erros retornados pela validação e armazena no estado errors para exibir
-      err.inner.forEach((e: any) => {
-        validationErrors[e.path] = e.message;
-      });
-      setErrors(validationErrors); // atualiza o estado com os erros para mostrar no formulário
+      // **MODIFIQUE ESTE LOG PARA SER MAIS DETALHADO**
+      console.error('ERRO CATCH - handleCadastro:', err);
+      console.error('Código do erro:', err.code);
+      console.error('Mensagem do erro:', err.message);
+
+      // **DEBUG: Mantendo o tratamento de erro YUP caso você queira descomentar a validação**
+      if (err.name === 'ValidationError') {
+        const validationErrors: Record<string, string> = {};
+        err.inner.forEach((e: any) => {
+          validationErrors[e.path] = e.message;
+        });
+        setErrors(validationErrors);
+        showToast('Por favor, corrija os erros do formulário.', 'warning');
+      } else {
+        let errorMessage = 'Erro ao cadastrar. Tente novamente.';
+        switch (err.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'Este email já está cadastrado. Tente fazer login ou redefinir a senha.';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'O formato do email é inválido. Por favor, verifique.';
+            break;
+          case 'auth/operation-not-allowed':
+            errorMessage = 'A criação de contas com e-mail e senha está desabilitada. Verifique as configurações no Firebase Console.';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'A senha é muito fraca. Ela deve ter pelo menos 6 caracteres.';
+            break;
+          default:
+            errorMessage = `Erro desconhecido: ${err.message}`;
+            break;
+        }
+        showToast(errorMessage);
+      }
     }
   };
 
-  // Início da tela de cadastro
   return (
     <IonPage>
       <IonHeader>
@@ -105,7 +194,6 @@ const Register: React.FC = () => {
             <IonCol size="12" sizeMd="6" sizeLg="4">
               <IonCard className="ion-padding">
                 <IonCardContent>
-                  {/* Logo */}
                   <IonText color="primary">
                     <div
                       style={{
@@ -171,7 +259,7 @@ const Register: React.FC = () => {
                     )}
                   </div>
 
-                  {/* CPF */}
+                  {/* CPF (com máscara) */}
                   <div className="ion-margin-top">
                     <IonItem>
                       <IonLabel
@@ -182,9 +270,9 @@ const Register: React.FC = () => {
                       </IonLabel>
                       <IonInput
                         ref={cpfInputRef}
-                        value={cpf}
-                        onIonChange={(e) => setCpf(e.detail.value!)}
+                        onIonChange={(e) => { /* IMask já está atualizando o estado 'cpf' via on('accept') */ }}
                         placeholder="Digite seu CPF"
+                        inputmode="numeric"
                       />
                     </IonItem>
                     {errors.cpf && (
@@ -196,7 +284,7 @@ const Register: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Telefone */}
+                  {/* Telefone (com máscara) */}
                   <div className="ion-margin-top">
                     <IonItem>
                       <IonLabel
@@ -207,9 +295,10 @@ const Register: React.FC = () => {
                       </IonLabel>
                       <IonInput
                         ref={telInputRef}
-                        value={telefone}
-                        onIonChange={(e) => setTelefone(e.detail.value!)}
+                        onIonChange={(e) => { /* IMask já está atualizando o estado 'telefone' via on('accept') */ }}
                         placeholder="Digite seu telefone"
+                        type="tel"
+                        inputmode="numeric"
                       />
                     </IonItem>
                     {errors.telefone && (
@@ -279,7 +368,6 @@ const Register: React.FC = () => {
                   >
                     Cadastrar
                   </IonButton>
-                  {/* Se tiver conta, é redirecionado para o login */}
                   <IonButton
                     expand="block"
                     fill="clear"

@@ -9,7 +9,7 @@ const Home: React.FC = () => {
 
    // Navega para Login
   const goToLogin = () => {
-    history.push('/Login');
+    history.push('/Home');
   };
   return (
     <IonPage>
