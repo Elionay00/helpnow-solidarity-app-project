@@ -1,5 +1,4 @@
 // src/firebase/firebaseConfig.ts
-
 // Importa as funções que você precisa do Firebase SDK
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';           // Para o serviço de Autenticação

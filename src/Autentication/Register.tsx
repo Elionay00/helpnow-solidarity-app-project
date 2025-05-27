@@ -217,7 +217,7 @@ const Register: React.FC = () => {
                         position="floating"
                         style={{ marginBottom: "10px" }}
                       >
-                        Nome Completo
+                        <strong>Nome Completo</strong>
                       </IonLabel>
                       <IonInput
                         value={nomeCompleto}
@@ -241,7 +241,7 @@ const Register: React.FC = () => {
                         position="floating"
                         style={{ marginBottom: "10px" }}
                       >
-                        Email
+                        <strong>Email</strong>
                       </IonLabel>
                       <IonInput
                         type="email"
@@ -266,7 +266,7 @@ const Register: React.FC = () => {
                         position="floating"
                         style={{ marginBottom: "10px" }}
                       >
-                        CPF
+                        <strong>CPF</strong>
                       </IonLabel>
                       <IonInput
                         ref={cpfInputRef}
@@ -291,7 +291,7 @@ const Register: React.FC = () => {
                         position="floating"
                         style={{ marginBottom: "10px" }}
                       >
-                        Telefone
+                       <strong>Telefone</strong>
                       </IonLabel>
                       <IonInput
                         ref={telInputRef}
@@ -317,7 +317,7 @@ const Register: React.FC = () => {
                         position="floating"
                         style={{ marginBottom: "10px" }}
                       >
-                        Senha
+                        <strong>Senha</strong>
                       </IonLabel>
                       <IonInput
                         type="password"
@@ -342,7 +342,7 @@ const Register: React.FC = () => {
                         position="floating"
                         style={{ marginBottom: "10px" }}
                       >
-                        Confirme a senha
+                        <strong>Confirme a senha</strong>
                       </IonLabel>
                       <IonInput
                         type="password"

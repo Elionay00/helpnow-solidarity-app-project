@@ -16,14 +16,14 @@ import {
   IonCard,
   IonCardContent,
   IonText,
-  useIonToast, // ✨ NOVIDADE: Importação para usar Toast messages (as "mensagens separadas") ✨
+  useIonToast, //  NOVIDADE: Importação para usar Toast messages (as "mensagens separadas") 
 } from '@ionic/react';
 
-import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useState } from 'react'; // Importação do estado no React
+import { useHistory } from 'react-router-dom'; // Importação do React Router 
 import helpnowLogo from '../images/helpnow.png'; // Ajuste o caminho conforme necessário
 
-// ✨ NOVIDADE: Importações do Firebase Auth e da sua configuração! ✨
+// ✨ NOVIDADE: Importações do Firebase Auth e da sua configuração! 
 import { signInWithEmailAndPassword } from 'firebase/auth'; // Função principal para fazer login com email e senha
 import { auth } from '../firebase/firebaseConfig'; // Sua instância do serviço de autenticação Firebase
 
@@ -32,9 +32,9 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState<string>('');
 
   const history = useHistory();
-  const [presentToast] = useIonToast(); // ✨ NOVIDADE: Hook do Ionic para exibir toasts ✨
+  const [presentToast] = useIonToast(); //  NOVIDADE: Hook do Ionic para exibir toasts 
 
-  // ✨ NOVIDADE: Função auxiliar para exibir as mensagens (toasts) de forma consistente ✨
+  // NOVIDADE: Função auxiliar para exibir as mensagens (toasts) de forma consistente 
   const showToast = (message: string, color: string = 'danger') => {
     presentToast({
       message,
@@ -44,7 +44,7 @@ const Login: React.FC = () => {
     });
   };
 
-  // ✨ MUDANÇA PRINCIPAL: handleLogin agora é uma função assíncrona para interagir com o Firebase ✨
+  //  MUDANÇA PRINCIPAL: handleLogin agora é uma função assíncrona para interagir com o Firebase 
   const handleLogin = async () => {
     // 1. Validação Simples (você pode ter validações mais robustas aqui)
     if (!email || !password) {
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
     }
 
     try {
-      // ✨ AÇÃO DO FIREBASE: Tenta fazer o login do usuário com email e senha fornecidos ✨
+      //  AÇÃO DO FIREBASE: Tenta fazer o login do usuário com email e senha fornecidos 
       await signInWithEmailAndPassword(auth, email, password);
 
       // Se o login for bem-sucedido:
@@ -65,7 +65,7 @@ const Login: React.FC = () => {
 
       let errorMessage = 'Erro ao fazer login. Verifique seus dados e tente novamente.';
 
-      // ✨ NOVIDADE: Tratamento de erros específicos do Firebase para mensagens mais claras ✨
+      //  NOVIDADE: Tratamento de erros específicos do Firebase para mensagens mais claras 
       // Isso "separa as mensagens" de erro e as torna mais compreensíveis para o usuário.
       switch (err.code) {
         case 'auth/user-not-found': // O email não está cadastrado
@@ -122,7 +122,7 @@ const Login: React.FC = () => {
                   {/* Campo Email */}
                   <IonItem className="ion-margin-top">
                     <IonLabel position="floating" style={{ fontSize: '16px', color: '#000', marginBottom: '6px' }}>
-                      Email
+                      <strong>Email</strong>
                     </IonLabel>
                     <IonInput
                       type="email"
@@ -135,7 +135,7 @@ const Login: React.FC = () => {
                   {/* Campo Senha */}
                   <IonItem className="ion-margin-top">
                     <IonLabel position="floating" style={{ fontSize: '16px', color: '#000', marginBottom: '6px' }}>
-                      Senha
+                     <strong>Senha</strong>
                     </IonLabel>
                     <IonInput
                       type="password"
@@ -155,7 +155,7 @@ const Login: React.FC = () => {
 
                   {/* Link para Cadastro */}
                   <p className="ion-text-center ion-margin-top">
-                    Não tem uma conta? <a onClick={() => history.push('/register')}>Cadastre-se aqui.</a>
+                    <strong>Não tem uma conta?</strong> <a onClick={() => history.push('/register')}>Cadastre-se aqui.</a>
                   </p>
                 </IonCardContent>
               </IonCard>
