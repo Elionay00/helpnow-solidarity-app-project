@@ -22,6 +22,9 @@ import {
 import { useState } from 'react'; // Importação do estado no React
 import { useHistory } from 'react-router-dom'; // Importação do React Router 
 import helpnowLogo from '../images/helpnow.png'; // Ajuste o caminho conforme necessário
+import { eye, eyeOff } from 'ionicons/icons';
+import { IonIcon } from '@ionic/react';
+
 
 // ✨ NOVIDADE: Importações do Firebase Auth e da sua configuração! 
 import { signInWithEmailAndPassword } from 'firebase/auth'; // Função principal para fazer login com email e senha
@@ -33,6 +36,7 @@ const Login: React.FC = () => {
 
   const history = useHistory();
   const [presentToast] = useIonToast(); //  NOVIDADE: Hook do Ionic para exibir toasts 
+  const [mostrarSenha, setMostrarSenha] = useState<boolean>(false);
 
   // NOVIDADE: Função auxiliar para exibir as mensagens (toasts) de forma consistente 
   const showToast = (message: string, color: string = 'danger') => {
@@ -135,13 +139,21 @@ const Login: React.FC = () => {
                   {/* Campo Senha */}
                   <IonItem className="ion-margin-top">
                     <IonLabel position="floating" style={{ fontSize: '16px', color: '#000', marginBottom: '6px' }}>
-                     <strong>Senha</strong>
+                      <strong>Senha</strong>
                     </IonLabel>
+                    {/* Ícone do "olhinho" que alterna a visibilidade da senha */}
                     <IonInput
-                      type="password"
+                      type={mostrarSenha ? 'text' : 'password'}
                       value={password}
                       onIonChange={e => setPassword(e.detail.value!)}
                       placeholder="Digite sua senha..."
+                      style={{ width: '90%' }}
+                    />
+                    <IonIcon
+                      icon={mostrarSenha ? eyeOff : eye}
+                      slot="end"
+                      onClick={() => setMostrarSenha(!mostrarSenha)}
+                      style={{ fontSize: '20px', cursor: 'pointer', marginLeft: '8px', marginTop: '45px' }}
                     />
                   </IonItem>
 

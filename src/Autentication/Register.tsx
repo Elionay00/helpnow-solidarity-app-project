@@ -20,8 +20,11 @@ import {
 import React, { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import { registerSchema } from "../utils/validationSchemas";
-import IMask from 'imask';
+import IMask, { InputMask } from 'imask';
 import helpnowLogo from "../images/helpnow.png";
+import { IonIcon } from '@ionic/react';
+import { eye, eyeOff } from 'ionicons/icons';
+
 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -39,13 +42,18 @@ const Register: React.FC = () => {
   const [senha, setSenha] = useState("");
   const [confirmaSenha, setConfirmaSenha] = useState("");
 
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const cpfInputRef = useRef<HTMLIonInputElement>(null);
   const telInputRef = useRef<HTMLIonInputElement>(null);
 
-  const cpfIMaskInstance = useRef<IMask.InputMask<IMask.AnyMaskedOptions> | null>(null);
-  const telIMaskInstance = useRef<IMask.InputMask<IMask.AnyMaskedOptions> | null>(null);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmaSenha, setMostrarConfirmaSenha] = useState(false);
+
+
+  const cpfIMaskInstance = useRef<InputMask<any> | null>(null);
+  const telIMaskInstance = useRef<InputMask<any> | null>(null);
 
 
   const showToast = (message: string, color: string = 'danger') => {
@@ -59,39 +67,39 @@ const Register: React.FC = () => {
 
   useEffect(() => {
     const setupMasks = async () => {
-        const cpfNativeInput = await cpfInputRef.current?.getInputElement();
-        const telNativeInput = await telInputRef.current?.getInputElement();
+      const cpfNativeInput = await cpfInputRef.current?.getInputElement();
+      const telNativeInput = await telInputRef.current?.getInputElement();
 
-        if (cpfNativeInput) {
-            cpfIMaskInstance.current = IMask(cpfNativeInput, {
-                mask: '000.000.000-00'
-            });
-            cpfIMaskInstance.current.on('accept', () => {
-                setCpf(cpfIMaskInstance.current!.unmaskedValue);
-            });
-        }
+      if (cpfNativeInput) {
+        cpfIMaskInstance.current = IMask(cpfNativeInput, {
+          mask: '000.000.000-00'
+        });
+        cpfIMaskInstance.current.on('accept', () => {
+          setCpf(cpfIMaskInstance.current!.unmaskedValue);
+        });
+      }
 
-        if (telNativeInput) {
-            telIMaskInstance.current = IMask(telNativeInput, {
-                mask: ['(00) 0000-0000', '(00) 00000-0000']
-            });
-            telIMaskInstance.current.on('accept', () => {
-                setTelefone(telIMaskInstance.current!.unmaskedValue);
-            });
-        }
+      if (telNativeInput) {
+        telIMaskInstance.current = IMask(telNativeInput, {
+          mask: ['(00) 0000-0000', '(00) 00000-0000']
+        });
+        telIMaskInstance.current.on('accept', () => {
+          setTelefone(telIMaskInstance.current!.unmaskedValue);
+        });
+      }
     };
 
     setupMasks();
 
     return () => {
-        if (cpfIMaskInstance.current) {
-            cpfIMaskInstance.current.destroy();
-            cpfIMaskInstance.current = null;
-        }
-        if (telIMaskInstance.current) {
-            telIMaskInstance.current.destroy();
-            telIMaskInstance.current = null;
-        }
+      if (cpfIMaskInstance.current) {
+        cpfIMaskInstance.current.destroy();
+        cpfIMaskInstance.current = null;
+      }
+      if (telIMaskInstance.current) {
+        telIMaskInstance.current.destroy();
+        telIMaskInstance.current = null;
+      }
     };
   }, []);
 
@@ -291,7 +299,7 @@ const Register: React.FC = () => {
                         position="floating"
                         style={{ marginBottom: "10px" }}
                       >
-                       <strong>Telefone</strong>
+                        <strong>Telefone</strong>
                       </IonLabel>
                       <IonInput
                         ref={telInputRef}
@@ -313,19 +321,25 @@ const Register: React.FC = () => {
                   {/* Senha */}
                   <div className="ion-margin-top">
                     <IonItem>
-                      <IonLabel
-                        position="floating"
-                        style={{ marginBottom: "10px" }}
-                      >
+                      <IonLabel position="floating" style={{ marginBottom: "10px" }}>
                         <strong>Senha</strong>
                       </IonLabel>
                       <IonInput
-                        type="password"
+                        type={mostrarSenha ? "text" : "password"}
                         value={senha}
                         onIonChange={(e) => setSenha(e.detail.value!)}
                         placeholder="Crie uma senha segura"
+                        style={{ width: '90%' }}
+                      />
+                      {/* Ícone do "olhinho" que alterna a visibilidade da senha */}
+                      <IonIcon
+                        icon={mostrarSenha ? eyeOff : eye}
+                        slot="end"
+                        onClick={() => setMostrarSenha(!mostrarSenha)}
+                        style={{ fontSize: '20px', cursor: 'pointer', marginLeft: '8px', marginTop: '45px' }}
                       />
                     </IonItem>
+
                     {errors.senha && (
                       <IonText color="danger">
                         <p style={{ marginLeft: "16px", fontSize: "0.75rem" }}>
@@ -338,19 +352,25 @@ const Register: React.FC = () => {
                   {/* Confirma Senha */}
                   <div className="ion-margin-top">
                     <IonItem>
-                      <IonLabel
-                        position="floating"
-                        style={{ marginBottom: "10px" }}
-                      >
+                      <IonLabel position="floating" style={{ marginBottom: "10px" }}>
                         <strong>Confirme a senha</strong>
                       </IonLabel>
                       <IonInput
-                        type="password"
+                        type={mostrarConfirmaSenha ? "text" : "password"}
                         value={confirmaSenha}
                         onIonChange={(e) => setConfirmaSenha(e.detail.value!)}
                         placeholder="Repita a senha digitada"
+                        style={{ width: '90%' }}
+                      />
+                      {/* Ícone do "olhinho" que alterna a visibilidade da senha */}
+                      <IonIcon
+                        icon={mostrarConfirmaSenha ? eyeOff : eye}
+                        slot="end"
+                        onClick={() => setMostrarConfirmaSenha(!mostrarConfirmaSenha)}
+                        style={{ fontSize: '20px', cursor: 'pointer', marginLeft: '8px', marginTop: '45px' }}
                       />
                     </IonItem>
+
                     {errors.confirmaSenha && (
                       <IonText color="danger">
                         <p style={{ marginLeft: "16px", fontSize: "0.75rem" }}>
