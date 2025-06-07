@@ -40,7 +40,7 @@ const Home: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding ion-text-center" style={{ paddingBottom: '40px', fontFamily: 'Poppins, sans-serif' }}>
-        
+
         {/* Logo opcional */}
         <img
           src="/assets/logo-ajuda-ja.png"
@@ -124,6 +124,10 @@ const Home: React.FC = () => {
         <IonButton expand="block" color="success" onClick={goToCadastro} style={{ marginTop: 12 }}>
           Quero ajudar
         </IonButton>
+        <IonButton expand="block" color="tertiary" routerLink="/feed" style={{ marginTop: 12 }}>
+  Ver pedidos
+</IonButton>
+
       </IonContent>
     </IonPage>
   );

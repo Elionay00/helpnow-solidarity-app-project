@@ -36,6 +36,9 @@ import '@ionic/react/css/display.css'; // Opcional
 
 /* Theme variables */
 import './theme/variables.css';
+//inport para o mapa 
+import Feed from './pages/Feed';
+
 
 // Configura o Ionic React
 setupIonicReact();
@@ -61,6 +64,9 @@ const App: React.FC = () => (
           <Route exact path="/register" component={Register} />
           <Route exact path="/login" component={Login} />
           <Route exact path="/home" component={Home} />
+           {/*Feed do mapa */}
+          <Route path="/feed" component={Feed} exact /> 
+
 
           {/* Redirecionamento padrão: se ninguém acessar uma rota específica, vá para /register */}
           <Redirect exact from="/" to="/register" />
@@ -85,6 +91,9 @@ const App: React.FC = () => (
             <IonIcon aria-hidden="true" icon={personOutline} />
             <IonLabel>Cadastro</IonLabel>
           </IonTabButton>
+
+          
+
 
          
         </IonTabBar>
