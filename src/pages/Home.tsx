@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Autoplay, Pagination } from 'swiper';
 
-// Ativa os módulos
+// Ativa os módulos do Swiper
 SwiperCore.use([Autoplay, Pagination]);
 
 // CSS do Swiper
@@ -23,12 +23,24 @@ import 'swiper/css/pagination';
 const Home: React.FC = () => {
   const history = useHistory();
 
+  // Redireciona para a tela de login
   const goToLogin = () => {
     history.push('/login');
   };
 
+  // Redireciona para a tela de cadastro
   const goToCadastro = () => {
     history.push('/cadastro');
+  };
+
+  // Redireciona para a área "Preciso de ajuda"
+  const goToPrecisoDeAjuda = () => {
+    history.push('/preciso-de-ajuda');
+  };
+
+  // ✅ NOVO: Redireciona para a área "Quero Ajudar"
+  const goToQueroAjudar = () => {
+    history.push('/quero-ajudar');
   };
 
   return (
@@ -41,20 +53,21 @@ const Home: React.FC = () => {
 
       <IonContent fullscreen className="ion-padding ion-text-center" style={{ paddingBottom: '40px', fontFamily: 'Poppins, sans-serif' }}>
 
-        {/* Logo opcional */}
+        {/* Logo do aplicativo */}
         <img
           src="/assets/logo-ajuda-ja.png"
           alt="Ajuda Já"
           style={{ width: '120px', margin: '20px auto' }}
         />
 
-        {/* Swiper Carrossel com estilo aprimorado */}
+        {/* Swiper carrossel com slides informativos */}
         <Swiper
           autoplay={{ delay: 2500 }}
           pagination={{ clickable: true }}
           loop={true}
           style={{ height: '240px', marginBottom: '30px' }}
         >
+          {/* Slide 1 - Boas-vindas */}
           <SwiperSlide
             onClick={goToLogin}
             style={{
@@ -69,14 +82,15 @@ const Home: React.FC = () => {
               borderRadius: '12px',
             }}
           >
-            <IonText className="fade-in">
-              <h2 className="title-slide">🙌 Bem-vindo ao Ajuda Já!</h2>
-              <p className="text-slide">Conectamos você com quem pode ajudar, rápido e fácil.</p>
+            <IonText>
+              <h2>🙌 Bem-vindo ao Ajuda Já!</h2>
+              <p>Conectamos você com quem pode ajudar, rápido e fácil.</p>
             </IonText>
           </SwiperSlide>
 
+          {/* Slide 2 - Preciso de ajuda */}
           <SwiperSlide
-            onClick={goToLogin}
+            onClick={goToPrecisoDeAjuda}
             style={{
               cursor: 'pointer',
               background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -89,14 +103,15 @@ const Home: React.FC = () => {
               borderRadius: '12px',
             }}
           >
-            <IonText className="fade-in">
-              <h2 className="title-slide">🚨 Precisa de ajuda?</h2>
-              <p className="text-slide">Peça agora e receba suporte imediato da comunidade.</p>
+            <IonText>
+              <h2>🚨 Precisa de ajuda?</h2>
+              <p>Peça agora e receba suporte imediato da comunidade.</p>
             </IonText>
           </SwiperSlide>
 
+          {/* ✅ Slide 3 - Quero ajudar (agora redireciona para /quero-ajudar) */}
           <SwiperSlide
-            onClick={goToCadastro}
+            onClick={goToQueroAjudar}
             style={{
               cursor: 'pointer',
               background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
@@ -109,24 +124,27 @@ const Home: React.FC = () => {
               borderRadius: '12px',
             }}
           >
-            <IonText className="fade-in">
-              <h2 className="title-slide">💖 Quer ajudar?</h2>
-              <p className="text-slide">Faça a diferença na vida de alguém próximo de você.</p>
+            <IonText>
+              <h2>💖 Quer ajudar?</h2>
+              <p>Faça a diferença na vida de alguém próximo de você.</p>
             </IonText>
           </SwiperSlide>
         </Swiper>
 
-        {/* Botões de ação sem ícones */}
-        <IonButton expand="block" color="primary" onClick={goToLogin}>
+        {/* BOTÕES DE AÇÃO */}
+
+        <IonButton expand="block" color="primary" onClick={goToPrecisoDeAjuda}>
           Preciso de ajuda
         </IonButton>
 
-        <IonButton expand="block" color="success" onClick={goToCadastro} style={{ marginTop: 12 }}>
+        {/* ✅ Botão agora chama goToQueroAjudar */}
+        <IonButton expand="block" color="success" onClick={goToQueroAjudar} style={{ marginTop: 12 }}>
           Quero ajudar
         </IonButton>
+
         <IonButton expand="block" color="tertiary" routerLink="/feed" style={{ marginTop: 12 }}>
-  Ver pedidos
-</IonButton>
+          Ver pedidos
+        </IonButton>
 
       </IonContent>
     </IonPage>

@@ -39,6 +39,11 @@ import './theme/variables.css';
 //inport para o mapa 
 import Feed from './pages/Feed';
 
+import PrecisoDeAjuda from './pages/PrecisoDeAjuda';
+
+import QueroAjudar from './pages/QueroAjudar';
+
+
 
 // Configura o Ionic React
 setupIonicReact();
@@ -66,6 +71,11 @@ const App: React.FC = () => (
           <Route exact path="/home" component={Home} />
            {/*Feed do mapa */}
           <Route path="/feed" component={Feed} exact /> 
+
+          <Route exact path="/preciso-de-ajuda" component={PrecisoDeAjuda} />
+          <Route path="/quero-ajudar" component={QueroAjudar} exact />
+
+
 
 
           {/* Redirecionamento padrão: se ninguém acessar uma rota específica, vá para /register */}
