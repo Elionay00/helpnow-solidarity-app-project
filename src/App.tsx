@@ -19,8 +19,6 @@ import { homeOutline, logInOutline, personOutline } from 'ionicons/icons';
 // Importe seus componentes
 import Login from './Autentication/Login';
 import Register from './Autentication/Register';
-import Home from './pages/Home'; // Caminho para Home em src/pages/
-
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -37,12 +35,13 @@ import '@ionic/react/css/display.css'; // Opcional
 /* Theme variables */
 import './theme/variables.css';
 //inport para o mapa 
-import Feed from './pages/Feed';
+import Feed from './pages/community/Feed';
 
-import PrecisoDeAjuda from './pages/needHelp';
+import NeedHelp from './pages/HelpRequests/needHelp';
 
-import QueroAjudar from './pages/wantToSupport';
+import wantToSupport from './pages/SupportOffers/wantToSupport';
 
+import Home from './pages/StartPage/Home';
 
 
 // Configura o Ionic React
@@ -71,19 +70,14 @@ const App: React.FC = () => (
           <Route exact path="/home" component={Home} />
            {/*Feed do mapa */}
           <Route path="/feed" component={Feed} exact /> 
-
-          <Route exact path="/preciso-de-ajuda" component={PrecisoDeAjuda} />
-          <Route path="/quero-ajudar" component={QueroAjudar} exact />
-
+          <Route exact path="/preciso-de-ajuda" component={NeedHelp} />
+          <Route path="/quero-ajudar" component={wantToSupport} exact />
 
 
-
-          {/* Redirecionamento padrão: se ninguém acessar uma rota específica, vá para /register */}
-          <Redirect exact from="/" to="/register" />
-
-          <Route>
-            <Redirect to="/register" />
-          </Route>
+           {/* Redirecionamento inicial ao abrir o app */}
+           <Route exact path="/">
+           <Redirect to="/register" />
+           </Route>
         </IonRouterOutlet>
 
         <IonTabBar slot="bottom">
@@ -101,11 +95,6 @@ const App: React.FC = () => (
             <IonIcon aria-hidden="true" icon={personOutline} />
             <IonLabel>Cadastro</IonLabel>
           </IonTabButton>
-
-          
-
-
-         
         </IonTabBar>
       </IonTabs>
     </IonReactRouter>
