@@ -27,7 +27,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 
-import helpnowImg from "../../images/helpnow.png";
+import familyreceivinghelp from "../../images/familyreceivinghelp.jpeg";
 
 const Home: React.FC = () => {
   const history = useHistory();
@@ -59,11 +59,16 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen className="ion-padding">
-
+      <IonContent
+        fullscreen
+        className="ion-padding"
+        style={{
+          '--background': 'linear-gradient(to bottom, #003366, #00b3c6)', // Fundo do app
+        }}
+      >
         <img
-          src={helpnowImg}
-          alt="Ajuda Já"
+         src={familyreceivinghelp}          
+         alt="Ajuda Já"
           style={{
             width: '130px',
             margin: '30px auto 25px',
@@ -83,7 +88,7 @@ const Home: React.FC = () => {
           fadeEffect={{ crossFade: true }}
         >
           <SwiperSlide style={{
-            background: 'linear-gradient(135deg, #e3f2fd, #bbdefb)',
+            background: 'linear-gradient(135deg, #ffffff, #ffffff)',
             borderRadius: '20px',
             padding: '30px 25px',
             margin: '0 20px',
@@ -149,17 +154,17 @@ const Home: React.FC = () => {
           </SwiperSlide>
         </Swiper>
 
-        <IonButton expand="block" color="primary" onClick={goToPrecisoDeAjuda} style={{ marginBottom: 16 }}>
+        <IonButton expand="block" color="light" onClick={goToPrecisoDeAjuda} style={{ marginBottom: 16 }}>
           <IonIcon slot="start" icon={helpCircleOutline} />
           Preciso de ajuda
         </IonButton>
 
-        <IonButton expand="block" color="success" onClick={goToQueroAjudar} style={{ marginBottom: 16 }}>
+        <IonButton expand="block" color="light" onClick={goToQueroAjudar} style={{ marginBottom: 16 }}>
           <IonIcon slot="start" icon={heartOutline} />
           Quero ajudar
         </IonButton>
 
-        <IonButton expand="block" color="tertiary" onClick={goToFeed}>
+        <IonButton expand="block" color="light" onClick={goToFeed}>
           <IonIcon slot="start" icon={listOutline} />
           Ver pedidos
         </IonButton>
