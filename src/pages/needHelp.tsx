@@ -17,7 +17,7 @@ import {
 } from '@ionic/react';
 import { useState } from 'react';
 
-const PrecisoDeAjuda: React.FC = () => {
+const needHelp: React.FC = () => {
   const [descricao, setDescricao] = useState('');
   const [localizacao, setLocalizacao] = useState('');
   const [present] = useIonToast();
@@ -79,4 +79,4 @@ const PrecisoDeAjuda: React.FC = () => {
   );
 };
 
-export default PrecisoDeAjuda;
+export default needHelp;

@@ -39,9 +39,9 @@ import './theme/variables.css';
 //inport para o mapa 
 import Feed from './pages/Feed';
 
-import PrecisoDeAjuda from './pages/PrecisoDeAjuda';
+import PrecisoDeAjuda from './pages/needHelp';
 
-import QueroAjudar from './pages/QueroAjudar';
+import QueroAjudar from './pages/wantToSupport';
 
 
 

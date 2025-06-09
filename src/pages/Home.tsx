@@ -8,6 +8,8 @@ import {
   IonText,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import helpnowImg from '../images/helpnow.png'; // ajuste o caminho se necessário
+
 
 // IMPORTAÇÕES DO SWIPER
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -55,10 +57,10 @@ const Home: React.FC = () => {
 
         {/* Logo do aplicativo */}
         <img
-          src="/assets/logo-ajuda-ja.png"
-          alt="Ajuda Já"
-          style={{ width: '120px', margin: '20px auto' }}
-        />
+  src={helpnowImg}
+  alt="Ajuda Já"
+  style={{ width: '120px', margin: '20px auto', display: 'block' }}
+/>
 
         {/* Swiper carrossel com slides informativos */}
         <Swiper

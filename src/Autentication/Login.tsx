@@ -24,9 +24,6 @@ import { useHistory } from 'react-router-dom'; // Importação do React Router
 import helpnowLogo from '../images/helpnow.png'; // Ajuste o caminho conforme necessário
 import { eye, eyeOff } from 'ionicons/icons';
 import { IonIcon } from '@ionic/react';
-
-
-// ✨ NOVIDADE: Importações do Firebase Auth e da sua configuração! 
 import { signInWithEmailAndPassword } from 'firebase/auth'; // Função principal para fazer login com email e senha
 import { auth } from '../firebase/firebaseConfig'; // Sua instância do serviço de autenticação Firebase
 
@@ -115,6 +112,7 @@ const Login: React.FC = () => {
                       alignItems: 'center',
                       marginBottom: '16px'
                     }}>
+                       {/* Logo */}
                       <img
                         src={helpnowLogo}
                         alt="Logo Ajuda Já"

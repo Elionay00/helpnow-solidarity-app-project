@@ -11,7 +11,7 @@ import {
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 
-const QueroAjudar: React.FC = () => {
+const wantToSupport: React.FC = () => {
   const history = useHistory();
 
   return (
@@ -40,4 +40,4 @@ const QueroAjudar: React.FC = () => {
   );
 };
 
-export default QueroAjudar;
+export default wantToSupport;
