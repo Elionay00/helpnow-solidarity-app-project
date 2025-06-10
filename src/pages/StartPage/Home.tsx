@@ -40,8 +40,7 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Navbar original - sem mudanças */}
-      <IonHeader>
+      {/* Navbar original - sem mudanças */}      <IonHeader>
         <IonToolbar>
           <IonTitle>Ajuda Já</IonTitle>
 
@@ -67,8 +66,8 @@ const Home: React.FC = () => {
         }}
       >
         <img
-         src={familyreceivinghelp}          
-         alt="Ajuda Já"
+          src={familyreceivinghelp}
+          alt="Ajuda Já"
           style={{
             width: '130px',
             margin: '30px auto 25px',
@@ -84,75 +83,59 @@ const Home: React.FC = () => {
           loop={true}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
-          style={{ marginBottom: '30px' }}
           fadeEffect={{ crossFade: true }}
+          style={{ marginBottom: '30px' }}
         >
-          <SwiperSlide style={{
-            background: 'linear-gradient(135deg, #ffffff, #ffffff)',
-            borderRadius: '20px',
-            padding: '30px 25px',
-            margin: '0 20px',
-            boxShadow: '0 12px 25px rgba(0,0,0,0.2)',
-            color: '#222',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            height: '240px',
-            fontWeight: '500',
-            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-          }}>
-            <IonText>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '14px', color: '#003366' }}>🙌 Conectando Solidariedade</h2>
-              <p style={{ fontSize: '1.2rem', fontWeight: 400, color: '#003366', lineHeight: 1.3 }}>
-                Uma rede do bem para ajudar quem mais precisa.
-              </p>
-            </IonText>
-          </SwiperSlide>
-
-          <SwiperSlide style={{
-            background: 'linear-gradient(135deg, #fce4ec, #f8bbd0)',
-            borderRadius: '20px',
-            padding: '30px 25px',
-            margin: '0 20px',
-            boxShadow: '0 12px 25px rgba(0,0,0,0.2)',
-            color: '#222',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            height: '240px',
-            fontWeight: '500',
-            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-          }}>
-            <IonText>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '14px', color: '#003366' }}>🚨 Precisa de Ajuda?</h2>
-              <p style={{ fontSize: '1.2rem', fontWeight: 400, color: '#003366', lineHeight: 1.3 }}>
-                Descreva sua necessidade. Vamos te conectar com quem pode ajudar.
-              </p>
-            </IonText>
-          </SwiperSlide>
-
-          <SwiperSlide style={{
-            background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)',
-            borderRadius: '20px',
-            padding: '30px 25px',
-            margin: '0 20px',
-            boxShadow: '0 12px 25px rgba(0,0,0,0.2)',
-            color: '#222',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            height: '240px',
-            fontWeight: '500',
-            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-          }}>
-            <IonText>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '14px', color: '#003366' }}>💖 Quer Ajudar?</h2>
-              <p style={{ fontSize: '1.2rem', fontWeight: 400, color: '#003366', lineHeight: 1.3 }}>
-                Transforme vidas com pequenos gestos. Faça parte!
-              </p>
-            </IonText>
-          </SwiperSlide>
+          {[{
+            title: '🙌 Conectando Solidariedade',
+            text: 'Uma rede do bem para ajudar quem mais precisa.',
+            background: 'linear-gradient(135deg, #ffffff, #ffffff)'
+          }, {
+            title: '🚨 Precisa de Ajuda?',
+            text: 'Descreva sua necessidade. Vamos te conectar com quem pode ajudar.',
+            background: 'linear-gradient(135deg, #fce4ec, #f8bbd0)'
+          }, {
+            title: '💖 Quer Ajudar?',
+            text: 'Transforme vidas com pequenos gestos. Faça parte!',
+            background: 'linear-gradient(135deg, #e8f5e9, #c8e6c9)'
+          }].map((slide, index) => (
+            <SwiperSlide
+              key={index}
+              style={{
+                background: slide.background,
+                borderRadius: '20px',
+                padding: '30px 25px',
+                boxShadow: '0 12px 25px rgba(0,0,0,0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '240px',
+                textAlign: 'center',
+                fontWeight: 500,
+                fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+              }}
+            >
+              <IonText>
+                <h2 style={{
+                  fontSize: '1.8rem',
+                  fontWeight: 700,
+                  marginBottom: '14px',
+                  color: '#003366'
+                }}>{slide.title}</h2>
+                <p style={{
+                  fontSize: '1.1rem',
+                  fontWeight: 400,
+                  color: '#003366',
+                  lineHeight: 1.4,
+                  maxWidth: '90%',
+                  margin: '0 auto'
+                }}>{slide.text}</p>
+              </IonText>
+            </SwiperSlide>
+          ))}
         </Swiper>
+
 
         <IonButton expand="block" color="light" onClick={goToPrecisoDeAjuda} style={{ marginBottom: 16 }}>
           <IonIcon slot="start" icon={helpCircleOutline} />
