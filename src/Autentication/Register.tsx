@@ -189,7 +189,7 @@ const Register: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Cadastro</IonTitle>
+          <IonTitle style={{fontWeight: 'bold', fontSize: '18px' }}>Cadastro</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -197,8 +197,7 @@ const Register: React.FC = () => {
         <IonGrid>
           <IonRow
             className="ion-justify-content-center ion-align-items-center"
-            style={{ height: "100%" }}
-          >
+            style={{ height: "100%" }}>
             <IonCol size="12" sizeMd="6" sizeLg="4">
               <IonCard className="ion-padding">
                 <IonCardContent>

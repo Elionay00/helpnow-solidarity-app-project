@@ -43,6 +43,9 @@ import wantToSupport from './pages/SupportOffers/wantToSupport';
 
 import Home from './pages/StartPage/Home';
 
+import GoodDeedsForm from "./pages/SupportOffers/GoodDeedsForm";
+
+
 
 // Configura o Ionic React
 setupIonicReact();
@@ -72,7 +75,7 @@ const App: React.FC = () => (
           <Route path="/feed" component={Feed} exact /> 
           <Route exact path="/preciso-de-ajuda" component={NeedHelp} />
           <Route path="/quero-ajudar" component={wantToSupport} exact />
-
+          <Route path="/GoodDeedsForm" component={GoodDeedsForm} exact />
 
            {/* Redirecionamento inicial ao abrir o app */}
            <Route exact path="/">

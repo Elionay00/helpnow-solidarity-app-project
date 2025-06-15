@@ -94,7 +94,7 @@ const Login: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Minha conta</IonTitle>
+          <IonTitle style={{fontWeight: 'bold', fontSize: '18px' }}>Minha conta</IonTitle>
         </IonToolbar>
       </IonHeader>
 

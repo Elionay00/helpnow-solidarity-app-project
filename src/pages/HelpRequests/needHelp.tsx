@@ -54,7 +54,7 @@ const NeedHelp: React.FC = () => {
               <IonIcon icon={arrowBackOutline} />
             </IonBackButton>
           </IonButtons>
-          <IonTitle>Preciso de Ajuda</IonTitle>
+          <IonTitle style={{fontWeight: 'bold', fontSize: '18px' }}>Preciso de ajuda</IonTitle>
         </IonToolbar>
       </IonHeader>
 

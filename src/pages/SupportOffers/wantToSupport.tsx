@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   IonPage,
   IonHeader,
@@ -10,9 +10,9 @@ import {
   IonButtons,
   IonBackButton,
   IonIcon,
-} from '@ionic/react';
-import { useHistory } from 'react-router-dom';
-import { arrowBackOutline } from 'ionicons/icons'; // Ícone de voltar
+} from "@ionic/react";
+import { useHistory } from "react-router-dom";
+import { arrowBackOutline } from "ionicons/icons"; // Ícone de voltar
 
 // Componente da página "Quero Ajudar"
 const WantToSupport: React.FC = () => {
@@ -28,7 +28,9 @@ const WantToSupport: React.FC = () => {
               <IonIcon icon={arrowBackOutline} />
             </IonBackButton>
           </IonButtons>
-          <IonTitle>Quero Ajudar</IonTitle>
+          <IonTitle style={{ fontWeight: "bold", fontSize: "18px" }}>
+            Quero ajudar
+          </IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -37,58 +39,59 @@ const WantToSupport: React.FC = () => {
         fullscreen
         className="ion-padding"
         style={{
-          '--background': 'linear-gradient(to bottom, #e0f7fa, #c8e6c9)', // Gradiente de fundo suave
+          "--background": "linear-gradient(to bottom, #e0f7fa, #c8e6c9)", // Gradiente de fundo suave
         }}
       >
         {/* Container centralizado com conteúdo */}
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            maxWidth: '600px',
-            margin: '0 auto',
-            padding: '20px',
-            boxSizing: 'border-box',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            maxWidth: "600px",
+            margin: "0 auto",
+            padding: "20px",
+            boxSizing: "border-box",
           }}
         >
           {/* Cartão com mensagem de incentivo */}
           <div
             style={{
-              background: '#ffffff',
-              borderRadius: '20px',
-              padding: '30px 25px',
-              boxShadow: '0 12px 25px rgba(0,0,0,0.2)',
-              color: '#222',
+              background: "#ffffff",
+              borderRadius: "20px",
+              padding: "30px 25px",
+              boxShadow: "0 12px 25px rgba(0,0,0,0.2)",
+              color: "#222",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-              width: '100%',
-              marginBottom: '30px',
+              width: "100%",
+              marginBottom: "30px",
             }}
           >
             <IonText>
               <h2
                 style={{
-                  fontSize: '2rem',
+                  fontSize: "2rem",
                   fontWeight: 700,
-                  marginBottom: '15px',
-                  color: '#003366',
-                  textAlign: 'center',
+                  marginBottom: "15px",
+                  color: "#003366",
+                  textAlign: "center",
                 }}
               >
                 💖 Seja um herói para alguém!
               </h2>
               <p
                 style={{
-                  fontSize: '1.2rem',
+                  fontSize: "1.2rem",
                   fontWeight: 400,
-                  color: '#444',
+                  color: "#444",
                   lineHeight: 1.4,
-                  textAlign: 'center',
+                  textAlign: "center",
                 }}
               >
-                Sua ajuda pode transformar vidas. Cadastre-se e veja quem precisa perto de você.
+                Sua ajuda pode transformar vidas. Cadastre-se e veja quem
+                precisa perto de você.
               </p>
             </IonText>
           </div>
@@ -98,20 +101,41 @@ const WantToSupport: React.FC = () => {
             expand="block"
             routerLink="/feed"
             style={{
-              '--background': '#00b3c6',
-              '--background-activated': '#008c9e',
-              '--color': '#ffffff',
-              borderRadius: '12px',
-              height: '55px',
-              fontSize: '1.2rem',
-              fontWeight: 'bold',
-              marginBottom: '18px',
-              boxShadow: '0 8px 18px rgba(0, 179, 198, 0.4)',
-              width: '100%',
-              maxWidth: '300px',
+              "--background": "#00b3c6",
+              "--background-activated": "#008c9e",
+              "--color": "#ffffff",
+              borderRadius: "12px",
+              height: "55px",
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              marginBottom: "18px",
+              boxShadow: "0 8px 18px rgba(0, 179, 198, 0.4)",
+              width: "100%",
+              maxWidth: "300px",
             }}
           >
             Ver pedidos de ajuda
+          </IonButton>
+
+          {/* Botão novo para ir ao formulário (ainda sem funcionalidade) */}
+          <IonButton
+            expand="block"
+            routerLink="/GoodDeedsForm"
+            style={{
+              "--background": "#00b3c6", // mesma cor do botão de cima
+              "--background-activated": "#008c9e",
+              "--color": "#ffffff",
+              borderRadius: "12px",
+              height: "55px",
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              marginBottom: "18px",
+              boxShadow: "0 8px 18px rgba(0, 179, 198, 0.4)",
+              width: "100%",
+              maxWidth: "300px",
+            }}
+          >
+            Quero ajudar agora
           </IonButton>
 
           {/* Botão para voltar à tela anterior */}
@@ -120,17 +144,17 @@ const WantToSupport: React.FC = () => {
             fill="outline"
             onClick={() => history.goBack()}
             style={{
-              '--border-color': '#003366',
-              '--border-width': '2px',
-              '--color': '#003366',
-              '--ripple-color': '#003366',
-              borderRadius: '12px',
-              height: '55px',
-              fontSize: '1.2rem',
-              fontWeight: 'bold',
-              boxShadow: '0 5px 10px rgba(0,0,0,0.1)',
-              width: '100%',
-              maxWidth: '300px',
+              "--border-color": "#003366",
+              "--border-width": "2px",
+              "--color": "#003366",
+              "--ripple-color": "#003366",
+              borderRadius: "12px",
+              height: "55px",
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              boxShadow: "0 5px 10px rgba(0,0,0,0.1)",
+              width: "100%",
+              maxWidth: "300px",
             }}
           >
             Voltar
