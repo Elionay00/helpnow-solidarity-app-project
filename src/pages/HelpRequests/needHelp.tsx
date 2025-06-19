@@ -100,13 +100,13 @@ const NeedHelp: React.FC = () => {
                   textAlign: 'center',
                 }}
               >
-                🆘 Descreva sua necessidade
+                👪 Descreva sua necessidade
               </h2>
             </IonText>
 
             {/* Campo de Localização */}
             <IonItem lines="inset">
-              <IonLabel position="floating">Localização</IonLabel>
+              <IonLabel position="floating" style={{margin: '3px'}}>Localização</IonLabel>
               <IonInput
                 value={localizacao}
                 onIonChange={(e) => setLocalizacao(e.detail.value!)}
