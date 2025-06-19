@@ -17,8 +17,9 @@ import { IonReactRouter } from '@ionic/react-router';
 import { homeOutline, logInOutline, personOutline } from 'ionicons/icons';
 
 // Importe seus componentes
-import Login from './Autentication/Login';
-import Register from './Autentication/Register';
+import Login from './Autentication/userLogin/interactionUser/LoginPresentation';
+import Register from './Autentication/userRegister/Register';
+
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';

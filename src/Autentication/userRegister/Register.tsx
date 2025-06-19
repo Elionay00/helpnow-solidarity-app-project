@@ -19,16 +19,14 @@ import {
 
 import React, { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
-import { registerSchema } from "../utils/validationSchemas";
+import { registerSchema } from "../../utils/validationSchemas";
 import IMask, { InputMask } from 'imask';
-import helpnowLogo from "../images/helpnow.png";
+import helpnowLogo from "../../images/helpnow.png";
 import { IonIcon } from '@ionic/react';
 import { eye, eyeOff } from 'ionicons/icons';
-
-
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/firebaseConfig';
+import { auth, db } from '../../firebase/firebaseConfig';
 
 
 const Register: React.FC = () => {
