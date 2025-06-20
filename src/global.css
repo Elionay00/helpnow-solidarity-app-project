@@ -13,6 +13,7 @@ body {
   line-height: 1.6;
   margin: 0;
 }
+
 .fade-in {
   animation: fadeIn 0.8s ease-in-out both;
 }
@@ -22,8 +23,21 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* No seu arquivo src/theme/global.css ou src/theme/variables.css */
+
+.ion-invalid-border {
+  --border-color: var(--ion-color-danger, red) !important;
+  /* Força a borda vermelha */
+}
+
+/* Opcional: Se quiser que o texto de entrada também fique vermelho */
+.ion-invalid-border ion-input {
+  --color: var(--ion-color-danger, red);
 }
