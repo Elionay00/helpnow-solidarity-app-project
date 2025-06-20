@@ -44,7 +44,6 @@ import familyreceivinghelp from "../../images/familyreceivinghelp.jpeg";
   const goToHome = () => history.push("/");
   const goToPerfil = () => history.push("/perfil");
 
-  // Exemplo de estado para notificações no badge
   const [notificationCount, setNotificationCount] = useState(3);
 
   return (
