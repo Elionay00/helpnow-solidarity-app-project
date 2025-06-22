@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { IonItem, IonLabel, IonInput, IonIcon, InputChangeEventDetail, IonText } from '@ionic/react'; // Importe IonText aqui
+import { IonItem, IonLabel, IonInput, IonIcon, InputChangeEventDetail, IonText } from '@ionic/react';
 
 // Definindo as Props para o componente ValidatedInput
 interface ValidatedInputProps {
@@ -13,8 +12,6 @@ interface ValidatedInputProps {
     type?: 'text' | 'number' | 'email' | 'password' | 'search' | 'tel' | 'url';
     inputmode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal';
     maxlength?: number;
-    // 'message' pode ser um erro específico para o campo em tempo real, se necessário.
-    // No nosso caso, a mensagem global de erro do formulário já é suficiente.
 }
 
 const ValidatedInput: React.FC<ValidatedInputProps> = ({
@@ -22,7 +19,7 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
     value,
     onValueChange,
     icon,
-    regex,
+    regex, // Note: regex is passed but its immediate validation isn't used for `isInvalid` state here.
     isInvalid,
     type = 'text',
     inputmode,
@@ -32,18 +29,12 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
     const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
         const inputValue = e.detail.value || '';
 
-        // Permite a digitação, mas o isValid que vem do pai determinará o destaque visual no final.
-        // Esta parte aqui só se preocupa em manter o input atualizado e não exceder maxlength.
         if (maxlength && inputValue.length > maxlength) {
-            // Se exceder maxlength e um maxlength for definido, não atualiza o valor
-            // e o isInvalid do pai se encarregará de mostrar o erro.
             return;
         }
 
-        // Se o valor digitado não for um número (para type="tel", por exemplo), ou não corresponder à regex
-        // e não for vazio, marca como inválido para feedback imediato na digitação.
-        // No entanto, a validação final e a mensagem de erro específica virão do componente pai (GoodDeedsForm).
-        const isValueCurrentlyValid = regex.test(inputValue) || inputValue === '';
+        // REMOVA OU COMENTE ESTA LINHA:
+        // const isValueCurrentlyValid = regex.test(inputValue) || inputValue === ''; 
 
         // Atualiza o valor. O estado 'isInvalid' é controlado pelo componente pai.
         onValueChange(inputValue);
@@ -52,7 +43,7 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
     return (
         <IonItem
             lines="full"
-            className={isInvalid ? 'ion-invalid-border' : ''} // Aplica a classe para borda vermelha
+            className={isInvalid ? 'ion-invalid-border' : ''}
             style={{ '--background': 'transparent', marginBottom: '10px' }}
         >
             <IonIcon icon={icon} slot="start" color={isInvalid ? "danger" : "primary"} />
@@ -63,13 +54,12 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
                 value={value}
                 onIonChange={handleInputChange}
                 required
-                pattern={regex.source} // Importante para validação nativa do navegador
+                pattern={regex.source}
                 type={type}
                 inputmode={inputmode}
                 maxlength={maxlength}
-                style={{ '--padding-top': '20px' }} // Espaçamento entre label e input
+                style={{ '--padding-top': '20px' }}
             />
-            {/* Mensagens de erro para este componente são gerenciadas pelo componente pai GoodDeedsForm */}
         </IonItem>
     );
 };
