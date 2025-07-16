@@ -9,6 +9,8 @@ import {
   IonText,
   IonIcon,
   IonBadge,
+  IonFab, // NOVO: Importa o container do botão flutuante
+  IonFabButton, // NOVO: Importa o botão flutuante
 } from "@ionic/react";
 
 import { useHistory } from "react-router-dom";
@@ -20,6 +22,7 @@ import {
   homeOutline,
   notificationsOutline,
   manOutline,
+  mapOutline, // NOVO: Importa o ícone de mapa
 } from "ionicons/icons";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -32,17 +35,18 @@ import "swiper/css/effect-fade";
 
 import familyreceivinghelp from "../../images/familyreceivinghelp.jpeg";
 
-  const Home: React.FC = () => {
+const Home: React.FC = () => {
   const history = useHistory();
 
   const goToPrecisoDeAjuda = () => history.push("/preciso-de-ajuda");
   const goToQueroAjudar = () => history.push("/quero-ajudar");
   const goToFeed = () => {
-    setNotificationCount(0); // Zera notificações quando abre feed
+    setNotificationCount(0);
     history.push("/feed");
   };
   const goToHome = () => history.push("/");
   const goToPerfil = () => history.push("/perfil");
+  const goToMapa = () => history.push("/mapa"); // NOVO: Função para navegar até o mapa
 
   const [notificationCount, setNotificationCount] = useState(3);
 
@@ -97,7 +101,7 @@ import familyreceivinghelp from "../../images/familyreceivinghelp.jpeg";
         fullscreen
         className="ion-padding"
         style={{
-          "--background": "linear-gradient(to bottom, #003366, #00b3c6)", // Fundo do app
+          "--background": "linear-gradient(to bottom, #003366, #00b3c6)",
         }}
       >
         <img
@@ -128,8 +132,7 @@ import familyreceivinghelp from "../../images/familyreceivinghelp.jpeg";
             },
             {
               title: "🚨 Precisa de Ajuda?",
-              text:
-                "Descreva sua necessidade. Vamos te conectar com quem pode ajudar.",
+              text: "Descreva sua necessidade. Vamos te conectar com quem pode ajudar.",
               background: "linear-gradient(135deg, #fce4ec, #f8bbd0)",
             },
             {
@@ -207,6 +210,13 @@ import familyreceivinghelp from "../../images/familyreceivinghelp.jpeg";
           <IonIcon slot="start" icon={listOutline} />
           Ver pedidos
         </IonButton>
+
+        {/* NOVO: Botão Flutuante (FAB) para o mapa */}
+        <IonFab vertical="bottom" horizontal="end" slot="fixed">
+          <IonFabButton onClick={goToMapa} color="tertiary" title="Ver no Mapa">
+            <IonIcon icon={mapOutline} />
+          </IonFabButton>
+        </IonFab>
       </IonContent>
     </IonPage>
   );

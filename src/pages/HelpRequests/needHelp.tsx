@@ -1,150 +1,165 @@
+import React, { useState } from 'react';
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
-  IonText,
-  IonButton,
-  IonTextarea,
-  IonInput,
-  IonItem,
-  IonLabel,
-  useIonToast,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
   IonButtons,
   IonBackButton,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonTextarea,
+  IonButton,
   IonIcon,
+  useIonToast,
+  useIonLoading,
 } from '@ionic/react';
-import { useState } from 'react';
-import { arrowBackOutline } from 'ionicons/icons'; // Ícone para o botão de voltar
+import { useHistory } from 'react-router-dom';
+import { sendOutline, locationOutline } from 'ionicons/icons';
+
+// Importações do Firebase
+import { db, auth } from '../../firebase/firebaseConfig';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const NeedHelp: React.FC = () => {
-  const [descricao, setDescricao] = useState('');
-  const [localizacao, setLocalizacao] = useState('');
-  const [present] = useIonToast();
+  const history = useHistory();
+  const [presentToast] = useIonToast();
+  const [presentLoading, dismissLoading] = useIonLoading();
 
-  // Função chamada ao clicar em "Enviar Pedido"
-  const handleEnviarPedido = () => {
-    if (!descricao || !localizacao) {
-      present({
-        message: 'Preencha todos os campos!',
+  // Estados para guardar os dados do formulário
+  const [titulo, setTitulo] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Função principal que é chamada ao clicar no botão
+  const handleFormSubmit = async () => {
+    // 1. Validar se os campos foram preenchidos
+    if (!titulo.trim() || !descricao.trim()) {
+      presentToast({
+        message: 'Por favor, preencha o título e a descrição.',
         duration: 2000,
-        color: 'danger',
+        color: 'warning',
       });
       return;
     }
 
-    present({
-      message: 'Pedido enviado com sucesso!',
-      duration: 2000,
-      color: 'success',
-    });
+    // 2. Validar se o utilizador está autenticado
+    if (!auth.currentUser) {
+      presentToast({
+        message: 'Você precisa de estar logado para fazer um pedido.',
+        duration: 3000,
+        color: 'danger',
+      });
+      history.push('/login');
+      return;
+    }
 
-    setDescricao('');
-    setLocalizacao('');
+    setIsSubmitting(true);
+    presentLoading({ message: 'A obter a sua localização...' });
+
+    // 3. Capturar a localização do utilizador
+    if (!navigator.geolocation) {
+      dismissLoading();
+      setIsSubmitting(false);
+      presentToast({ message: 'Geolocalização não é suportada neste navegador.', duration: 3000, color: 'danger' });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // 4. Preparar os dados para salvar no Firebase
+        const novoPedido = {
+          titulo: titulo,
+          descricao: descricao,
+          localizacao: {
+            latitude: latitude,
+            longitude: longitude,
+          },
+          userId: auth.currentUser?.uid, // Guardar o ID do utilizador que fez o pedido
+          createdAt: serverTimestamp(), // Guardar a data de criação
+        };
+        
+        await presentLoading({ message: 'A enviar o seu pedido...' });
+        
+        // 5. Salvar o novo pedido na coleção 'pedidosDeAjuda'
+        try {
+          await addDoc(collection(db, "pedidosDeAjuda"), novoPedido);
+          
+          dismissLoading();
+          presentToast({
+            message: 'O seu pedido foi enviado com sucesso!',
+            duration: 2000,
+            color: 'success',
+          });
+          
+          // Redireciona o utilizador para o mapa para ele ver o seu pedido
+          history.push('/mapa');
+
+        } catch (error) {
+          console.error("Erro ao salvar o pedido: ", error);
+          dismissLoading();
+          setIsSubmitting(false);
+          presentToast({ message: 'Ocorreu um erro ao enviar o seu pedido.', duration: 3000, color: 'danger' });
+        }
+      },
+      (error) => {
+        console.error("Erro de geolocalização: ", error);
+        dismissLoading();
+        setIsSubmitting(false);
+        presentToast({ message: 'Não foi possível obter a sua localização. Verifique as permissões.', duration: 3000, color: 'danger' });
+      }
+    );
   };
 
   return (
     <IonPage>
-      {/* Cabeçalho com botão de voltar */}
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/home" text="">
-              <IonIcon icon={arrowBackOutline} />
-            </IonBackButton>
+            <IonBackButton defaultHref="/home" />
           </IonButtons>
-          <IonTitle style={{fontWeight: 'bold', fontSize: '18px' }}>Preciso de ajuda</IonTitle>
+          <IonTitle>Pedir Ajuda</IonTitle>
         </IonToolbar>
       </IonHeader>
+      <IonContent fullscreen className="ion-padding">
+        <IonItem>
+          <IonLabel position="floating">Título do Pedido</IonLabel>
+          <IonInput
+            value={titulo}
+            onIonChange={(e) => setTitulo(e.detail.value!)}
+            placeholder="Ex: Preciso de uma cesta básica"
+          />
+        </IonItem>
+        <IonItem>
+          <IonLabel position="floating">Descreva o que você precisa</IonLabel>
+          <IonTextarea
+            value={descricao}
+            onIonChange={(e) => setDescricao(e.detail.value!)}
+            rows={6}
+            placeholder="Descreva com mais detalhes a sua necessidade..."
+          />
+        </IonItem>
 
-      {/* Conteúdo com gradiente e centralização */}
-      <IonContent
-        fullscreen
-        className="ion-padding"
-        style={{
-          '--background': 'linear-gradient(to bottom, #e0f7fa, #c8e6c9)',
-        }}
-      >
-        {/* Container centralizado */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            maxWidth: '600px',
-            margin: '0 auto',
-            padding: '20px',
-            boxSizing: 'border-box',
-          }}
-        >
-          {/* Cartão com sombra e bordas arredondadas */}
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '20px',
-              padding: '30px 25px',
-              boxShadow: '0 12px 25px rgba(0,0,0,0.2)',
-              width: '100%',
-            }}
-          >
-            <IonText>
-              <h2
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 700,
-                  marginBottom: '20px',
-                  color: '#003366',
-                  textAlign: 'center',
-                }}
-              >
-                👪 Descreva sua necessidade
-              </h2>
-            </IonText>
-
-            {/* Campo de Localização */}
-            <IonItem lines="inset">
-              <IonLabel position="floating" style={{margin: '3px'}}>Localização</IonLabel>
-              <IonInput
-                value={localizacao}
-                onIonChange={(e) => setLocalizacao(e.detail.value!)}
-                placeholder="Informe sua localização..."
-              />
-            </IonItem>
-
-            {/* Campo de Descrição */}
-            <IonItem lines="inset">
-              <IonLabel position="floating">Descrição do pedido</IonLabel>
-              <IonTextarea
-                rows={6}
-                value={descricao}
-                onIonChange={(e) => setDescricao(e.detail.value!)}
-                placeholder="Ex: Preciso de doação de alimentos..."
-              />
-            </IonItem>
-
-            {/* Botão Enviar Pedido */}
-            <IonButton
-              expand="block"
-              onClick={handleEnviarPedido}
-              style={{
-                '--background': '#00b3c6',
-                '--background-activated': '#008c9e',
-                '--color': '#ffffff',
-                borderRadius: '12px',
-                height: '50px',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                marginTop: '25px',
-                boxShadow: '0 8px 18px rgba(0, 179, 198, 0.4)',
-              }}
-            >
-              Enviar Pedido
-            </IonButton>
-          </div>
+        <div className="ion-padding-top">
+          <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'gray' }}>
+            <IonIcon icon={locationOutline} style={{ verticalAlign: 'bottom' }} />
+            A sua localização será partilhada para que a ajuda possa chegar até você.
+          </p>
         </div>
+
+        <IonButton
+          expand="block"
+          onClick={handleFormSubmit}
+          disabled={isSubmitting}
+          className="ion-margin-top"
+        >
+          <IonIcon slot="start" icon={sendOutline} />
+          {isSubmitting ? 'A Enviar...' : 'Enviar Pedido de Ajuda'}
+        </IonButton>
       </IonContent>
     </IonPage>
   );
