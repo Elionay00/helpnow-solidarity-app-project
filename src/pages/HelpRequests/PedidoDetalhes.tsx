@@ -15,14 +15,14 @@ import {
   IonButton,
   IonIcon,
   useIonToast,
-  IonAlert, // NOVO: Para confirmar a ação
+  IonAlert,
 } from '@ionic/react';
 import { useParams, useHistory } from 'react-router-dom';
 import { checkmarkCircleOutline, closeCircleOutline, hourglassOutline, shieldCheckmarkOutline } from 'ionicons/icons';
 
 // Importações do Firebase
 import { db, auth } from '../../firebase/firebaseConfig';
-import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore'; // NOVO: onSnapshot para ouvir em tempo real
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 interface Pedido {
   id: string;
@@ -40,9 +40,8 @@ const PedidoDetalhes: React.FC = () => {
 
   const [pedido, setPedido] = useState<Pedido | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showAlert, setShowAlert] = useState(false); // NOVO: Estado para o alerta
+  const [showAlert, setShowAlert] = useState(false);
 
-  // ALTERADO: Usar onSnapshot para que a página se atualize em tempo real
   useEffect(() => {
     const docRef = doc(db, 'pedidosDeAjuda', id);
     
@@ -59,7 +58,6 @@ const PedidoDetalhes: React.FC = () => {
       setLoading(false);
     });
 
-    // Função de limpeza para parar de ouvir quando o componente é desmontado
     return () => unsubscribe();
   }, [id, history, presentToast]);
 
@@ -82,7 +80,6 @@ const PedidoDetalhes: React.FC = () => {
     presentToast({ message: 'Obrigado! Você está a ajudar neste pedido.', duration: 3000, color: 'success' });
   };
 
-  // NOVO: Função para marcar o pedido como concluído
   const handleComplete = async () => {
     setLoading(true);
     try {
@@ -91,7 +88,7 @@ const PedidoDetalhes: React.FC = () => {
         status: 'concluido',
       });
       presentToast({ message: 'Ajuda concluída com sucesso! Obrigado.', duration: 3000, color: 'success' });
-      history.push('/mapa'); // Volta para o mapa após concluir
+      history.push('/mapa');
     } catch (error) {
       console.error("Erro ao concluir pedido:", error);
     } finally {
@@ -125,19 +122,18 @@ const PedidoDetalhes: React.FC = () => {
                   {pedido.status === 'aberto' && <IonIcon icon={checkmarkCircleOutline} color="success" />}
                   {pedido.status === 'em_atendimento' && <IonIcon icon={hourglassOutline} color="warning" />}
                   {pedido.status === 'concluido' && <IonIcon icon={shieldCheckmarkOutline} color="primary" />}
-                  <span style={{ marginLeft: '10px', textTransform: 'capitalize' }}>Status: {pedido.status.replace('_', ' ')}</span>
+                  <span style={{ marginLeft: '10px', textTransform: 'capitalize' }}>Status: {(pedido.status || '').replace('_', ' ')}</span>
                 </div>
                 
-                {/* Botão "Quero Ajudar" (visível se o pedido estiver aberto) */}
                 {pedido.status === 'aberto' && (
                   <IonButton expand="block" onClick={handleHelp} className="ion-margin-top">
                     Eu quero ajudar!
                   </IonButton>
                 )}
 
-                {/* NOVO: Botão "Marcar como Concluído" */}
-                {/* Visível apenas para a pessoa que está a ajudar (helperId) */}
-                {pedido.status === 'em_atendimento' && pedido.helperId === currentUser?.uid && (
+                {/* ALTERADO: Botão "Marcar como Concluído" agora é visível para ambas as partes */}
+                {/* Aparece se o pedido está 'em_atendimento' E se o utilizador atual é quem pediu OU quem está a ajudar */}
+                {pedido.status === 'em_atendimento' && (pedido.helperId === currentUser?.uid || pedido.userId === currentUser?.uid) && (
                   <IonButton expand="block" color="success" onClick={() => setShowAlert(true)} className="ion-margin-top">
                     <IonIcon icon={shieldCheckmarkOutline} slot="start" />
                     Marcar como Concluído
@@ -146,7 +142,6 @@ const PedidoDetalhes: React.FC = () => {
               </IonCardContent>
             </IonCard>
 
-            {/* NOVO: Alerta de confirmação */}
             <IonAlert
               isOpen={showAlert}
               onDidDismiss={() => setShowAlert(false)}

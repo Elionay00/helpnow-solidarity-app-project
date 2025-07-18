@@ -10,7 +10,8 @@ import {
   IonIcon,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeOutline, logInOutline, personOutline, mapOutline } from 'ionicons/icons';
+// NOVO: Importa o ícone de perfil
+import { homeOutline, logInOutline, personOutline, mapOutline, personCircleOutline } from 'ionicons/icons';
 
 import Login from './Autentication/userLogin/interactionUser/LoginPresentation';
 import Register from './Autentication/userRegister/interactionUser/RegisterPresentation';
@@ -20,9 +21,11 @@ import NeedHelp from './pages/HelpRequests/needHelp';
 import WantToSupport from './pages/SupportOffers/wantToSupport';
 import Home from './pages/StartPage/Home';
 import GoodDeedsForm from "./pages/SupportOffers/GoodDeedsForm";
-import Mapa from './pages/Mapa';
-// NOVO: Importa a nova página de detalhes do pedido
+import Mapa from './pages/MapHelp/Mapa';
 import PedidoDetalhes from './pages/HelpRequests/PedidoDetalhes';
+// NOVO: Importa a nova página de perfil
+import Perfil from './pages/Profile/Perfil';
+
 
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged } from "firebase/auth";
@@ -56,7 +59,7 @@ const App: React.FC = () => {
   }, []);
 
   if (checkingAuth) {
-    return null; // ou um spinner de carregamento
+    return null;
   }
 
   const isWelcomeScreen = window.location.pathname === '/welcome';
@@ -75,8 +78,9 @@ const App: React.FC = () => {
             <Route exact path="/quero-ajudar" render={() => <WantToSupport />} />
             <Route exact path="/GoodDeedsForm" render={() => <GoodDeedsForm />} />
             <Route exact path="/mapa" render={() => <Mapa />} />
-            {/* NOVO: Rota para a página de detalhes do pedido. O :id é um parâmetro dinâmico. */}
             <Route exact path="/pedido/:id" render={() => <PedidoDetalhes />} />
+            {/* NOVO: Rota para a página de perfil */}
+            <Route exact path="/perfil" render={() => <Perfil />} />
             <Route exact path="/">
               <Redirect to="/welcome" />
             </Route>
@@ -93,8 +97,9 @@ const App: React.FC = () => {
               <Route exact path="/quero-ajudar" render={() => <WantToSupport />} />
               <Route exact path="/GoodDeedsForm" render={() => <GoodDeedsForm />} />
               <Route exact path="/mapa" render={() => <Mapa />} />
-              {/* NOVO: Rota para a página de detalhes do pedido. O :id é um parâmetro dinâmico. */}
               <Route exact path="/pedido/:id" render={() => <PedidoDetalhes />} />
+              {/* NOVO: Rota para a página de perfil */}
+              <Route exact path="/perfil" render={() => <Perfil />} />
               <Route exact path="/">
                 <Redirect to={userAuthenticated ? "/home" : "/welcome"} />
               </Route>
@@ -110,6 +115,11 @@ const App: React.FC = () => {
                   <IonTabButton tab="mapa" href="/mapa">
                     <IonIcon aria-hidden="true" icon={mapOutline} />
                     <IonLabel>Mapa</IonLabel>
+                  </IonTabButton>
+                  {/* NOVO: Botão da aba de Perfil */}
+                  <IonTabButton tab="perfil" href="/perfil">
+                    <IonIcon aria-hidden="true" icon={personCircleOutline} />
+                    <IonLabel>Perfil</IonLabel>
                   </IonTabButton>
                 </>
               ) : (

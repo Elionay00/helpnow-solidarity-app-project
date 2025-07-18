@@ -81,6 +81,9 @@ const NeedHelp: React.FC = () => {
           },
           userId: auth.currentUser?.uid, // Guardar o ID do utilizador que fez o pedido
           createdAt: serverTimestamp(), // Guardar a data de criação
+          // --- FUNÇÃO ADICIONADA ---
+          // Adiciona o status inicial para que o pedido apareça no mapa e no feed
+          status: 'aberto', 
         };
         
         await presentLoading({ message: 'A enviar o seu pedido...' });
@@ -147,7 +150,7 @@ const NeedHelp: React.FC = () => {
         <div className="ion-padding-top">
           <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'gray' }}>
             <IonIcon icon={locationOutline} style={{ verticalAlign: 'bottom' }} />
-            A sua localização será partilhada para que a ajuda possa chegar até você.
+            A sua localização será partilhada para que a ajuda possa chegar até si.
           </p>
         </div>
 

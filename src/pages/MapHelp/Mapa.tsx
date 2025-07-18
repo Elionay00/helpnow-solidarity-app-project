@@ -22,25 +22,23 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import { db } from '../firebase/firebaseConfig';
+// ALTERADO: O caminho para o firebaseConfig foi corrigido
+import { db } from '../../firebase/firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 
 // --- ÍCONES PERSONALIZADOS ---
-// Ícone para pedidos ABERTOS (Vermelho)
 const openIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 
-// Ícone para pedidos EM ATENDIMENTO (Amarelo)
 const inProgressIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 
-// Ícone para a localização do UTILIZADOR (Azul)
 const userLocationIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -87,7 +85,6 @@ const Mapa: React.FC = () => {
         const querySnapshot = await getDocs(collection(db, "pedidosDeAjuda"));
         const locaisBuscados = querySnapshot.docs.map(doc => {
           const dados = doc.data();
-          // Apenas pedidos que não estão concluídos aparecerão no mapa
           if (dados.localizacao && dados.status !== 'concluido') {
             return {
               id: doc.id,
