@@ -6,13 +6,14 @@ import { getFirestore, Firestore } from 'firebase/firestore'; // Para o serviço
 
 // Suas credenciais únicas do projeto Firebase.
 // Estes valores foram copiados diretamente do seu Firebase Console para o app web HelpNow - Solidarity.
-const firebaseConfig = {
-  apiKey: "AIzaSyCfZRfN0N3xaAoEEJFNjG4dPlS8NqcIsYc",
-  authDomain: "helpnow---solidarity.firebaseapp.com",
-  projectId: "helpnow---solidarity",
-  storageBucket: "helpnow---solidarity.firebasestorage.app",
-  messagingSenderId: "643021457446",
-  appId: "1:643021457446:web:7460c4aa7cfd6ce2a13ee7"
+const firebaseConfig = {apiKey: "AIzaSyDFqkEMxBJh4dWz6CPqBZQ1WphzfhCJ1QI",
+  authDomain: "ajudaja-8d5b6.firebaseapp.com",
+  projectId: "ajudaja-8d5b6",
+  storageBucket: "ajudaja-8d5b6.firebasestorage.app",
+  messagingSenderId: "277310269351",
+  appId: "1:277310269351:web:4a6c9a9a37aa3d21bbb882",
+  measurementId: "G-CBCT4D4FFY"
+ 
 };
 
 // Inicializa o aplicativo Firebase com suas credenciais

@@ -13,7 +13,7 @@ import {
   IonButton,
   IonIcon,
   useIonViewWillEnter,
-  IonLoading, // ALTERADO: Trocado useIonLoading por IonLoading
+  IonLoading,
   IonText,
   IonRefresher,
   IonRefresherContent,
@@ -29,7 +29,8 @@ import { collection, getDocs, query, where, orderBy, Timestamp } from 'firebase/
 
 import './Feed.css';
 
-interface Pedido {
+// Interface (em inglês) para a estrutura de um pedido de ajuda
+interface HelpRequest {
   id: string;
   titulo: string;
   descricao: string;
@@ -37,6 +38,7 @@ interface Pedido {
   createdAt: Timestamp;
 }
 
+// Função utilitária para formatar o tempo (ex: "há 2 horas")
 function formatTimeAgo(timestamp: Timestamp): string {
   if (!timestamp) return '';
   const now = new Date();
@@ -58,43 +60,52 @@ function formatTimeAgo(timestamp: Timestamp): string {
 
 const Feed: React.FC = () => {
   const history = useHistory();
-  // ALTERADO: A linha com useIonLoading foi removida
-  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+  
+  // Variáveis de estado (em inglês)
+  const [requests, setRequests] = useState<HelpRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPedidos = async (event?: any) => {
+  // Função (em inglês) para buscar os pedidos do Firebase
+  const fetchRequests = async (event?: any) => {
+    // Só mostra o ecrã de loading grande na primeira vez que a página carrega
     if (!event) {
       setLoading(true);
     }
     try {
+      // Cria uma consulta (query) ao Firebase
       const q = query(
         collection(db, "pedidosDeAjuda"),
+        // Filtra para mostrar apenas pedidos com status "aberto" ou "em_atendimento"
         where("status", "in", ["aberto", "em_atendimento"]),
+        // Ordena os resultados para mostrar os mais recentes primeiro
         orderBy("createdAt", "desc")
       );
 
       const querySnapshot = await getDocs(q);
-      const pedidosBuscados = querySnapshot.docs.map(doc => ({
+      const fetchedRequests = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-      })) as Pedido[];
+      })) as HelpRequest[];
       
-      setPedidos(pedidosBuscados);
+      setRequests(fetchedRequests); // Atualiza o estado com os pedidos encontrados
 
     } catch (error) {
-      console.error("Erro ao buscar pedidos: ", error);
+      console.error("Error fetching requests: ", error);
     } finally {
       setLoading(false);
+      // Se a função foi chamada pelo "puxar para atualizar", completa a animação
       if (event) {
         event.detail.complete();
       }
     }
   };
 
+  // Hook do Ionic para executar a busca sempre que a página é exibida
   useIonViewWillEnter(() => {
-    fetchPedidos();
+    fetchRequests();
   });
 
+  // Função para navegar para a página de detalhes de um pedido
   const goToDetails = (id: string) => {
     history.push(`/pedido/${id}`);
   };
@@ -111,14 +122,15 @@ const Feed: React.FC = () => {
       </IonHeader>
 
       <IonContent className="ion-padding">
-        <IonRefresher slot="fixed" onIonRefresh={fetchPedidos}>
+        {/* Componente que permite "puxar para atualizar" a lista */}
+        <IonRefresher slot="fixed" onIonRefresh={fetchRequests}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
 
-        {/* ALTERADO: A forma de chamar o IonLoading foi simplificada e corrigida */}
         <IonLoading isOpen={loading} message={'A carregar feed...'} />
 
-        {!loading && pedidos.length === 0 && (
+        {/* Mensagem exibida se, após carregar, não houver nenhum pedido */}
+        {!loading && requests.length === 0 && (
           <div className="ion-text-center" style={{ marginTop: '50px' }}>
             <IonIcon icon={sadOutline} style={{ fontSize: '4rem', color: '#ccc' }} />
             <IonText>
@@ -128,23 +140,24 @@ const Feed: React.FC = () => {
           </div>
         )}
 
-        {!loading && pedidos.length > 0 && (
-          pedidos.map((pedido) => (
-            <IonCard key={pedido.id}>
+        {/* A lista de pedidos só é renderizada se não estiver a carregar e se houver pedidos */}
+        {!loading && requests.length > 0 && (
+          requests.map((request) => (
+            <IonCard key={request.id}>
               <IonCardHeader>
                 <IonCardTitle className="feed-title">
                   <IonIcon icon={helpCircleOutline} style={{ marginRight: 8 }} />
-                  {pedido.titulo}
+                  {request.titulo}
                 </IonCardTitle>
                 <IonCardSubtitle className="feed-location">
                   <IonIcon icon={locationOutline} style={{ marginRight: 6 }} />
-                  Pedido feito {formatTimeAgo(pedido.createdAt)}
+                  Pedido feito {formatTimeAgo(request.createdAt)}
                 </IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent className="feed-description">
-                {pedido.descricao}
+                {request.descricao}
               </IonCardContent>
-              <IonButton expand="block" color="success" onClick={() => goToDetails(pedido.id)}>
+              <IonButton expand="block" color="success" onClick={() => goToDetails(request.id)}>
                 Ver Detalhes e Ajudar
               </IonButton>
             </IonCard>

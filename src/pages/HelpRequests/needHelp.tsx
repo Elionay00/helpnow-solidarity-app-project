@@ -28,30 +28,22 @@ const NeedHelp: React.FC = () => {
   const [presentToast] = useIonToast();
   const [presentLoading, dismissLoading] = useIonLoading();
 
-  // Estados para guardar os dados do formulário
-  const [titulo, setTitulo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Variáveis de estado (em inglês) para guardar os dados do formulário
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false); // Controla se o formulário está a ser enviado
 
-  // Função principal que é chamada ao clicar no botão
+  // Função (em inglês) para lidar com o envio do formulário
   const handleFormSubmit = async () => {
-    // 1. Validar se os campos foram preenchidos
-    if (!titulo.trim() || !descricao.trim()) {
-      presentToast({
-        message: 'Por favor, preencha o título e a descrição.',
-        duration: 2000,
-        color: 'warning',
-      });
+    // 1. Validação para garantir que os campos não estão vazios
+    if (!title.trim() || !description.trim()) {
+      presentToast({ message: 'Por favor, preencha o título e a descrição.', duration: 2000, color: 'warning' });
       return;
     }
 
-    // 2. Validar se o utilizador está autenticado
+    // 2. Validação para garantir que o utilizador está autenticado
     if (!auth.currentUser) {
-      presentToast({
-        message: 'Você precisa de estar logado para fazer um pedido.',
-        duration: 3000,
-        color: 'danger',
-      });
+      presentToast({ message: 'Você precisa de estar logado para fazer um pedido.', duration: 3000, color: 'danger' });
       history.push('/login');
       return;
     }
@@ -59,7 +51,7 @@ const NeedHelp: React.FC = () => {
     setIsSubmitting(true);
     presentLoading({ message: 'A obter a sua localização...' });
 
-    // 3. Capturar a localização do utilizador
+    // 3. Captura da localização do utilizador através da API do navegador
     if (!navigator.geolocation) {
       dismissLoading();
       setIsSubmitting(false);
@@ -71,46 +63,40 @@ const NeedHelp: React.FC = () => {
       async (position) => {
         const { latitude, longitude } = position.coords;
 
-        // 4. Preparar os dados para salvar no Firebase
-        const novoPedido = {
-          titulo: titulo,
-          descricao: descricao,
+        // 4. Preparação do objeto (em inglês) com os dados do novo pedido
+        const newRequest = {
+          titulo: title,
+          descricao: description,
           localizacao: {
             latitude: latitude,
             longitude: longitude,
           },
-          userId: auth.currentUser?.uid, // Guardar o ID do utilizador que fez o pedido
-          createdAt: serverTimestamp(), // Guardar a data de criação
-          // --- FUNÇÃO ADICIONADA ---
-          // Adiciona o status inicial para que o pedido apareça no mapa e no feed
-          status: 'aberto', 
+          userId: auth.currentUser?.uid, // ID do utilizador que fez o pedido
+          createdAt: serverTimestamp(), // Data e hora do servidor
+          status: 'aberto', // Status inicial do pedido
         };
         
         await presentLoading({ message: 'A enviar o seu pedido...' });
         
-        // 5. Salvar o novo pedido na coleção 'pedidosDeAjuda'
+        // 5. Envio do novo pedido para a coleção 'pedidosDeAjuda' no Firebase
         try {
-          await addDoc(collection(db, "pedidosDeAjuda"), novoPedido);
+          await addDoc(collection(db, "pedidosDeAjuda"), newRequest);
           
           dismissLoading();
-          presentToast({
-            message: 'O seu pedido foi enviado com sucesso!',
-            duration: 2000,
-            color: 'success',
-          });
+          presentToast({ message: 'O seu pedido foi enviado com sucesso!', duration: 2000, color: 'success' });
           
-          // Redireciona o utilizador para o mapa para ele ver o seu pedido
+          // Redireciona o utilizador para o mapa para ver o seu novo pedido
           history.push('/mapa');
 
         } catch (error) {
-          console.error("Erro ao salvar o pedido: ", error);
+          console.error("Error saving request: ", error);
           dismissLoading();
           setIsSubmitting(false);
           presentToast({ message: 'Ocorreu um erro ao enviar o seu pedido.', duration: 3000, color: 'danger' });
         }
       },
       (error) => {
-        console.error("Erro de geolocalização: ", error);
+        console.error("Geolocation error: ", error);
         dismissLoading();
         setIsSubmitting(false);
         presentToast({ message: 'Não foi possível obter a sua localização. Verifique as permissões.', duration: 3000, color: 'danger' });
@@ -132,16 +118,16 @@ const NeedHelp: React.FC = () => {
         <IonItem>
           <IonLabel position="floating">Título do Pedido</IonLabel>
           <IonInput
-            value={titulo}
-            onIonChange={(e) => setTitulo(e.detail.value!)}
+            value={title}
+            onIonChange={(e) => setTitle(e.detail.value!)}
             placeholder="Ex: Preciso de uma cesta básica"
           />
         </IonItem>
         <IonItem>
           <IonLabel position="floating">Descreva o que você precisa</IonLabel>
           <IonTextarea
-            value={descricao}
-            onIonChange={(e) => setDescricao(e.detail.value!)}
+            value={description}
+            onIonChange={(e) => setDescription(e.detail.value!)}
             rows={6}
             placeholder="Descreva com mais detalhes a sua necessidade..."
           />

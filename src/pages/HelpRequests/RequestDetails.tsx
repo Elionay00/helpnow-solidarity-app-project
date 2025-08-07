@@ -22,64 +22,72 @@ import { checkmarkCircleOutline, closeCircleOutline, hourglassOutline, shieldChe
 
 // Importações do Firebase
 import { db, auth } from '../../firebase/firebaseConfig';
-import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore'; // onSnapshot é para ouvir em tempo real
 
-interface Pedido {
+// Interface (em inglês) para a estrutura de um pedido de ajuda
+interface HelpRequest {
   id: string;
   titulo: string;
   descricao: string;
   status: 'aberto' | 'em_atendimento' | 'concluido';
-  userId: string; // ID de quem pediu ajuda
-  helperId?: string; // ID de quem está a ajudar
+  userId: string; // ID de quem pediu
+  helperId?: string; // ID de quem está a ajudar (opcional)
 }
 
-const PedidoDetalhes: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const RequestDetailsPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>(); // Pega o ID do pedido a partir do URL
   const history = useHistory();
   const [presentToast] = useIonToast();
 
-  const [pedido, setPedido] = useState<Pedido | null>(null);
+  // Variáveis de estado (em inglês)
+  const [request, setRequest] = useState<HelpRequest | null>(null); // Guarda os dados do pedido
   const [loading, setLoading] = useState(true);
-  const [showAlert, setShowAlert] = useState(false);
+  const [showAlert, setShowAlert] = useState(false); // Controla a exibição do alerta de confirmação
 
+  // useEffect com onSnapshot para buscar e ouvir as atualizações do pedido em tempo real
   useEffect(() => {
-    const docRef = doc(db, 'pedidosDeAjuda', id);
+    const docRef = doc(db, 'pedidosDeAjuda', id); // Referência para o documento específico
     
+    // onSnapshot cria um "ouvinte" que é notificado sempre que o documento muda
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        setPedido({ id: docSnap.id, ...docSnap.data() } as Pedido);
+        setRequest({ id: docSnap.id, ...docSnap.data() } as HelpRequest);
       } else {
         presentToast({ message: 'Pedido não encontrado.', duration: 3000, color: 'danger' });
         history.goBack();
       }
       setLoading(false);
     }, (error) => {
-      console.error("Erro ao ouvir o pedido:", error);
+      console.error("Error listening to request:", error);
       setLoading(false);
     });
 
+    // Função de limpeza: para de ouvir quando o componente é desmontado para poupar recursos
     return () => unsubscribe();
   }, [id, history, presentToast]);
 
+  // Função para um utilizador se voluntariar para ajudar
   const handleHelp = async () => {
     if (!auth.currentUser) {
       presentToast({ message: 'Você precisa de estar logado para ajudar.', duration: 3000, color: 'warning' });
       history.push('/login');
       return;
     }
-    if (pedido?.userId === auth.currentUser.uid) {
+    if (request?.userId === auth.currentUser.uid) {
       presentToast({ message: 'Você não pode atender ao seu próprio pedido.', duration: 3000, color: 'danger' });
       return;
     }
     
+    // Atualiza o documento no Firebase
     const docRef = doc(db, 'pedidosDeAjuda', id);
     await updateDoc(docRef, {
       status: 'em_atendimento',
-      helperId: auth.currentUser.uid,
+      helperId: auth.currentUser.uid, // Guarda o ID de quem está a ajudar
     });
     presentToast({ message: 'Obrigado! Você está a ajudar neste pedido.', duration: 3000, color: 'success' });
   };
 
+  // Função para marcar o pedido como concluído
   const handleComplete = async () => {
     setLoading(true);
     try {
@@ -88,9 +96,9 @@ const PedidoDetalhes: React.FC = () => {
         status: 'concluido',
       });
       presentToast({ message: 'Ajuda concluída com sucesso! Obrigado.', duration: 3000, color: 'success' });
-      history.push('/mapa');
+      history.push('/mapa'); // Volta para o mapa após concluir
     } catch (error) {
-      console.error("Erro ao concluir pedido:", error);
+      console.error("Error completing request:", error);
     } finally {
       setLoading(false);
     }
@@ -110,30 +118,30 @@ const PedidoDetalhes: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <IonLoading isOpen={loading} message={'A carregar...'} />
-        {pedido && (
+        {request && (
           <>
             <IonCard>
               <IonCardHeader>
-                <IonCardTitle>{pedido.titulo}</IonCardTitle>
+                <IonCardTitle>{request.titulo}</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
-                <p>{pedido.descricao}</p>
+                <p>{request.descricao}</p>
                 <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
-                  {pedido.status === 'aberto' && <IonIcon icon={checkmarkCircleOutline} color="success" />}
-                  {pedido.status === 'em_atendimento' && <IonIcon icon={hourglassOutline} color="warning" />}
-                  {pedido.status === 'concluido' && <IonIcon icon={shieldCheckmarkOutline} color="primary" />}
-                  <span style={{ marginLeft: '10px', textTransform: 'capitalize' }}>Status: {(pedido.status || '').replace('_', ' ')}</span>
+                  {request.status === 'aberto' && <IonIcon icon={checkmarkCircleOutline} color="success" />}
+                  {request.status === 'em_atendimento' && <IonIcon icon={hourglassOutline} color="warning" />}
+                  {request.status === 'concluido' && <IonIcon icon={shieldCheckmarkOutline} color="primary" />}
+                  <span style={{ marginLeft: '10px', textTransform: 'capitalize' }}>Status: {(request.status || '').replace('_', ' ')}</span>
                 </div>
                 
-                {pedido.status === 'aberto' && (
+                {/* Botão "Quero Ajudar" só aparece se o pedido estiver aberto */}
+                {request.status === 'aberto' && (
                   <IonButton expand="block" onClick={handleHelp} className="ion-margin-top">
                     Eu quero ajudar!
                   </IonButton>
                 )}
 
-                {/* ALTERADO: Botão "Marcar como Concluído" agora é visível para ambas as partes */}
-                {/* Aparece se o pedido está 'em_atendimento' E se o utilizador atual é quem pediu OU quem está a ajudar */}
-                {pedido.status === 'em_atendimento' && (pedido.helperId === currentUser?.uid || pedido.userId === currentUser?.uid) && (
+                {/* Botão "Marcar como Concluído" aparece para quem pediu E para quem está a ajudar */}
+                {request.status === 'em_atendimento' && (request.helperId === currentUser?.uid || request.userId === currentUser?.uid) && (
                   <IonButton expand="block" color="success" onClick={() => setShowAlert(true)} className="ion-margin-top">
                     <IonIcon icon={shieldCheckmarkOutline} slot="start" />
                     Marcar como Concluído
@@ -159,4 +167,4 @@ const PedidoDetalhes: React.FC = () => {
   );
 };
 
-export default PedidoDetalhes;
+export default RequestDetailsPage;
