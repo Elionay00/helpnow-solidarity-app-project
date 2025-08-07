@@ -1,3 +1,5 @@
+// ProfilePage.tsx - Versão com menu de navegação integrado
+
 import React, { useState } from 'react';
 import {
   IonContent,
@@ -24,7 +26,17 @@ import {
   useIonToast,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { logOutOutline, personCircleOutline, documentTextOutline, heartOutline, trashOutline } from 'ionicons/icons';
+// ÍCONES: Adicionamos os novos ícones para o menu
+import { 
+  logOutOutline, 
+  personCircleOutline, 
+  documentTextOutline, 
+  heartOutline, 
+  trashOutline,
+  chatbubblesOutline,      
+  storefrontOutline,       
+  logoInstagram            
+} from 'ionicons/icons';
 
 // Importações do Firebase
 import { db, auth } from '../../firebase/firebaseConfig';
@@ -44,12 +56,11 @@ const ProfilePage: React.FC = () => {
   const [presentToast] = useIonToast();
 
   // Variáveis de estado (em inglês)
-  const [myRequests, setMyRequests] = useState<RequestPreview[]>([]); // Lista dos pedidos do utilizador
-  const [myHelps, setMyHelps] = useState<RequestPreview[]>([]); // Lista das ajudas oferecidas pelo utilizador
+  const [myRequests, setMyRequests] = useState<RequestPreview[]>([]);
+  const [myHelps, setMyHelps] = useState<RequestPreview[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAlert, setShowAlert] = useState<{isOpen: boolean, requestId: string | null}>({isOpen: false, requestId: null});
 
-  // Função para buscar todos os dados do perfil
   const fetchData = async () => {
     if (!user) {
       setLoading(false);
@@ -57,13 +68,11 @@ const ProfilePage: React.FC = () => {
     }
     setLoading(true);
     try {
-      // 1. Busca os pedidos criados pelo utilizador (onde userId é igual ao ID do utilizador atual)
       const requestsQuery = query(collection(db, "pedidosDeAjuda"), where("userId", "==", user.uid), orderBy("createdAt", "desc"));
       const requestsSnapshot = await getDocs(requestsQuery);
       const requestsList = requestsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as RequestPreview));
       setMyRequests(requestsList);
 
-      // 2. Busca as ajudas oferecidas pelo utilizador (onde helperId é igual ao ID do utilizador atual)
       const helpsQuery = query(collection(db, "pedidosDeAjuda"), where("helperId", "==", user.uid), orderBy("createdAt", "desc"));
       const helpsSnapshot = await getDocs(helpsQuery);
       const helpsList = helpsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as RequestPreview));
@@ -75,27 +84,22 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  // Hook do Ionic para executar a busca de dados sempre que a página de perfil é exibida
   useIonViewWillEnter(() => {
     fetchData();
   });
 
-  // Função para terminar a sessão do utilizador
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      history.replace('/login'); // Redireciona para a página de login
+      history.replace('/login');
     } catch (error) {
       console.error("Error logging out: ", error);
     }
   };
 
-  // Função para cancelar (apagar) um pedido de ajuda
   const handleCancelRequest = async (requestId: string) => {
     try {
-      // Apaga o documento do Firebase
       await deleteDoc(doc(db, "pedidosDeAjuda", requestId));
-      // Remove o pedido da lista local para atualizar a interface imediatamente
       setMyRequests(prevRequests => prevRequests.filter(p => p.id !== requestId));
       presentToast({ message: 'Pedido cancelado com sucesso.', duration: 2000, color: 'success' });
     } catch (error) {
@@ -104,7 +108,6 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  // Função para devolver uma cor com base no status do pedido
   const getStatusColor = (status: string) => {
     if (status === 'aberto') return 'success';
     if (status === 'em_atendimento') return 'warning';
@@ -145,9 +148,40 @@ const ProfilePage: React.FC = () => {
           </IonCardContent>
         </IonCard>
 
+        {/**********************************************
+         * NOVO BLOCO DE MENU ADICIONADO AQUI          *
+         **********************************************/}
+        <IonList>
+            <IonListHeader>
+                <IonLabel color="primary">Navegação</IonLabel>
+            </IonListHeader>
+
+            {/* Item 1: Chat Fale Conosco */}
+            <IonItem routerLink="/contact" detail={true}>
+                <IonIcon icon={chatbubblesOutline} slot="start" color="primary" />
+                <IonLabel>Chat Fale Conosco</IonLabel>
+            </IonItem>
+
+            {/* Item 2: Lojas Parceiras/Patrocinadores */}
+            <IonItem routerLink="/sponsors" detail={true}>
+                <IonIcon icon={storefrontOutline} slot="start" color="primary" />
+                <IonLabel>Lojas Parceiras</IonLabel>
+            </IonItem>
+
+            {/* Item 3: Link para o Instagram (abre fora do app) */}
+            <IonItem href="https://www.instagram.com/ajudaja_oficial?igsh=cXB0bWhlOGdyZ2Y2" target="_blank" detail={true}>
+                <IonIcon icon={logoInstagram} slot="start" color="primary" />
+                <IonLabel>Nosso Instagram</IonLabel>
+            </IonItem>
+        </IonList>
+        {/**********************************************
+         * FIM DO BLOCO DE MENU                *
+         **********************************************/}
+
+
         {loading ? ( <div className="ion-text-center" style={{ marginTop: '20px' }}><IonSpinner /></div> ) : (
           <>
-            <IonList>
+            <IonList className="ion-margin-top">
               <IonListHeader>
                 <IonLabel color="primary"><IonIcon icon={documentTextOutline} /> Meus Pedidos de Ajuda</IonLabel>
               </IonListHeader>
@@ -158,7 +192,6 @@ const ProfilePage: React.FC = () => {
                     <IonBadge color={getStatusColor(request.status)} slot="end">
                       {(request.status || '').replace('_', ' ')}
                     </IonBadge>
-                    {/* Botão de cancelar só aparece se o pedido estiver "aberto" */}
                     {request.status === 'aberto' && (
                       <IonButton fill="clear" color="danger" slot="end" onClick={(e) => {
                         e.preventDefault(); e.stopPropagation();
