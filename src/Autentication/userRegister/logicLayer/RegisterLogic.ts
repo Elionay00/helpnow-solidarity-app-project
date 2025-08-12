@@ -4,6 +4,8 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import { useIonToast } from "@ionic/react";
 import IMask from "imask";
+import { registerSchema } from "../../../utils/validationSchemas"; // 1. Importar o schema
+import { ValidationError } from "yup"; // 2. Importar o tipo de erro do Yup
 
 function useRegisterLogic() {
   const [fullName, setFullName] = useState("");
@@ -25,18 +27,12 @@ function useRegisterLogic() {
     async function setupMasks() {
       if (cpfInputRef.current && !cpfMaskRef.current) {
         const cpfInputElement = await cpfInputRef.current.getInputElement();
-        cpfMaskRef.current = IMask(cpfInputElement, {
-          mask: "000.000.000-00",
-          lazy: true,
-        });
+        cpfMaskRef.current = IMask(cpfInputElement, { mask: "000.000.000-00" });
       }
 
       if (telInputRef.current && !telMaskRef.current) {
         const telInputElement = await telInputRef.current.getInputElement();
-        telMaskRef.current = IMask(telInputElement, {
-          mask: [{ mask: "(00) 00000-0000" }, { mask: "(00) 0000-0000" }],
-          lazy: false,
-        });
+        telMaskRef.current = IMask(telInputElement, { mask: "(00) 00000-0000" });
       }
     }
 
@@ -49,60 +45,51 @@ function useRegisterLogic() {
   }, []);
 
   const showToast = (message: string, color: string = "danger") => {
-    presentToast({
-      message,
-      duration: 3000,
-      color,
-      position: "bottom",
-    });
+    presentToast({ message, duration: 3000, color, position: "bottom" });
   };
 
+  // 3. Função de registro refatorada para usar o schema
   const handleRegister = async () => {
-    const cpf = cpfMaskRef.current?.value || "";
-    const phone = telMaskRef.current?.value || "";
+    const cpf = cpfMaskRef.current?.unmaskedValue || "";
+    const phone = telMaskRef.current?.unmaskedValue || "";
 
-    // Validação se todos os campos estão vazios
-    if (
-      !fullName.trim() &&
-      !email.trim() &&
-      !cpf.trim() &&
-      !phone.trim() &&
-      !password.trim() &&
-      !confirmPassword.trim()
-    ) {
-      showToast(
-        "Por favor, preencha o formulário antes de cadastrar.",
-        "warning"
-      );
-      return;
-    }
-
-    setErrors({});
-    const newErrors: Record<string, string> = {};
-
-    if (!fullName.trim()) newErrors.fullName = "Nome é obrigatório.";
-    if (!email.trim()) newErrors.email = "Email é obrigatório.";
-    if (!cpf.trim()) newErrors.cpf = "CPF é obrigatório.";
-    if (!phone.trim()) newErrors.phone = "Telefone é obrigatório.";
-    if (!password.trim()) newErrors.password = "Senha é obrigatória.";
-    if (!confirmPassword.trim())
-      newErrors.confirmPassword = "Confirme a senha.";
-    if (password !== confirmPassword)
-      newErrors.confirmPassword = "As senhas não coincidem.";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      showToast("Por favor, corrija os erros do formulário.", "warning");
-      return;
-    }
+    const formData = {
+      nomeCompleto: fullName,
+      email,
+      cpf,
+      telefone: phone,
+      senha: password,
+      confirmaSenha: confirmPassword,
+    };
 
     try {
+      // Limpa os erros antigos antes de validar
+      setErrors({});
+
+      // Valida o formulário inteiro de uma vez com o schema
+      await registerSchema.validate(formData, { abortEarly: false });
+
+      // Se a validação passar, continua com o Firebase
       await createUserWithEmailAndPassword(auth, email, password);
       showToast("Cadastro realizado com sucesso!", "success");
       history.push("/home");
-    } catch (error: any) {
-      let errorMessage = "Erro ao cadastrar. Tente novamente.";
 
+    } catch (error: any) {
+      // Se o erro for do Yup (erro de validação)
+      if (error instanceof ValidationError) {
+        const newErrors: Record<string, string> = {};
+        error.inner.forEach((err) => {
+          if (err.path) {
+            newErrors[err.path] = err.message;
+          }
+        });
+        setErrors(newErrors);
+        showToast("Por favor, corrija os erros do formulário.", "warning");
+        return;
+      }
+
+      // Se for um erro do Firebase ou outro erro
+      let errorMessage = "Erro ao cadastrar. Tente novamente.";
       switch (error.code) {
         case "auth/email-already-in-use":
           errorMessage = "Este email já está em uso.";
