@@ -12,3 +12,13 @@
   color: #555;
 }
 
+/* Para telas com largura máxima de 600px (tamanho de celular) */
+@media (max-width: 600px) {
+  .swiper-slide-content h2 {
+    font-size: 1.5rem; /* Diminui o tamanho da fonte do título do carrossel */
+  }
+
+  .swiper-slide-content p {
+    font-size: 1rem; /* Diminui o tamanho do texto do parágrafo */
+  }
+}

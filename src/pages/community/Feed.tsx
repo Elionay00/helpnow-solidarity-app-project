@@ -1,27 +1,15 @@
-import React, { useState } from 'react';
+// src/pages/community/Feed.tsx - ATUALIZADO E OTIMIZADO
+
+import React from 'react';
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
-  IonCardContent,
-  IonButton,
-  IonIcon,
-  useIonViewWillEnter,
-  IonLoading, // ALTERADO: Trocado useIonLoading por IonLoading
-  IonText,
-  IonRefresher,
-  IonRefresherContent,
-  IonButtons,
-  IonBackButton,
+  IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
+  IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton,
+  IonIcon, IonLoading, IonText, IonRefresher, IonRefresherContent,
+  IonButtons, IonBackButton,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { locationOutline, helpCircleOutline, sadOutline } from 'ionicons/icons';
+import { useQuery } from '@tanstack/react-query'; // Importa o hook useQuery
 
 // Importações do Firebase
 import { db } from '../../firebase/firebaseConfig';
@@ -29,7 +17,7 @@ import { collection, getDocs, query, where, orderBy, Timestamp } from 'firebase/
 
 import './Feed.css';
 
-interface Pedido {
+interface HelpRequest {
   id: string;
   titulo: string;
   descricao: string;
@@ -56,44 +44,32 @@ function formatTimeAgo(timestamp: Timestamp): string {
   return Math.floor(seconds) + " segundos atrás";
 }
 
+const fetchRequests = async (): Promise<HelpRequest[]> => {
+  const q = query(
+    collection(db, "pedidosDeAjuda"),
+    where("status", "in", ["aberto", "em_atendimento"]),
+    orderBy("createdAt", "desc")
+  );
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as HelpRequest[];
+};
+
 const Feed: React.FC = () => {
   const history = useHistory();
-  // ALTERADO: A linha com useIonLoading foi removida
-  const [pedidos, setPedidos] = useState<Pedido[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  const fetchPedidos = async (event?: any) => {
-    if (!event) {
-      setLoading(true);
-    }
-    try {
-      const q = query(
-        collection(db, "pedidosDeAjuda"),
-        where("status", "in", ["aberto", "em_atendimento"]),
-        orderBy("createdAt", "desc")
-      );
-
-      const querySnapshot = await getDocs(q);
-      const pedidosBuscados = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Pedido[];
-      
-      setPedidos(pedidosBuscados);
-
-    } catch (error) {
-      console.error("Erro ao buscar pedidos: ", error);
-    } finally {
-      setLoading(false);
-      if (event) {
-        event.detail.complete();
-      }
-    }
-  };
-
-  useIonViewWillEnter(() => {
-    fetchPedidos();
+  // O hook useQuery agora gerencia a busca, o cache e o estado de loading
+  const { data: requests, isLoading, refetch } = useQuery({
+    queryKey: ['helpRequests'], // Chave única para identificar este cache
+    queryFn: fetchRequests,   // Função que busca os dados
   });
+
+  const handleRefresh = async (event: any) => {
+    await refetch(); // O refetch do useQuery busca os dados novamente
+    event.detail.complete();
+  };
 
   const goToDetails = (id: string) => {
     history.push(`/pedido/${id}`);
@@ -111,14 +87,13 @@ const Feed: React.FC = () => {
       </IonHeader>
 
       <IonContent className="ion-padding">
-        <IonRefresher slot="fixed" onIonRefresh={fetchPedidos}>
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>
 
-        {/* ALTERADO: A forma de chamar o IonLoading foi simplificada e corrigida */}
-        <IonLoading isOpen={loading} message={'A carregar feed...'} />
+        <IonLoading isOpen={isLoading} message={'A carregar feed...'} />
 
-        {!loading && pedidos.length === 0 && (
+        {!isLoading && requests && requests.length === 0 && (
           <div className="ion-text-center" style={{ marginTop: '50px' }}>
             <IonIcon icon={sadOutline} style={{ fontSize: '4rem', color: '#ccc' }} />
             <IonText>
@@ -128,28 +103,26 @@ const Feed: React.FC = () => {
           </div>
         )}
 
-        {!loading && pedidos.length > 0 && (
-          pedidos.map((pedido) => (
-            <IonCard key={pedido.id}>
-              <IonCardHeader>
-                <IonCardTitle className="feed-title">
-                  <IonIcon icon={helpCircleOutline} style={{ marginRight: 8 }} />
-                  {pedido.titulo}
-                </IonCardTitle>
-                <IonCardSubtitle className="feed-location">
-                  <IonIcon icon={locationOutline} style={{ marginRight: 6 }} />
-                  Pedido feito {formatTimeAgo(pedido.createdAt)}
-                </IonCardSubtitle>
-              </IonCardHeader>
-              <IonCardContent className="feed-description">
-                {pedido.descricao}
-              </IonCardContent>
-              <IonButton expand="block" color="success" onClick={() => goToDetails(pedido.id)}>
-                Ver Detalhes e Ajudar
-              </IonButton>
-            </IonCard>
-          ))
-        )}
+        {!isLoading && requests && requests.map((request) => (
+          <IonCard key={request.id}>
+            <IonCardHeader>
+              <IonCardTitle className="feed-title">
+                <IonIcon icon={helpCircleOutline} style={{ marginRight: 8 }} />
+                {request.titulo}
+              </IonCardTitle>
+              <IonCardSubtitle className="feed-location">
+                <IonIcon icon={locationOutline} style={{ marginRight: 6 }} />
+                Pedido feito {formatTimeAgo(request.createdAt)}
+              </IonCardSubtitle>
+            </IonCardHeader>
+            <IonCardContent className="feed-description">
+              {request.descricao}
+            </IonCardContent>
+            <IonButton expand="block" color="success" onClick={() => goToDetails(request.id)}>
+              Ver Detalhes e Ajudar
+            </IonButton>
+          </IonCard>
+        ))}
       </IonContent>
     </IonPage>
   );
