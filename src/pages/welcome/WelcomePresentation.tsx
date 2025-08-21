@@ -94,19 +94,23 @@ const WelcomePresentation: React.FC = () => {
                 <IonText>
                   <h2
                     style={{
-                      fontSize: "22px",
-                      fontWeight: "600",
+                      fontSize: "24px",
+                      fontWeight: "700",
                       color: "#000",
-                      marginBottom: "12px",
+                      marginBottom: "24px",
+                      fontFamily:
+                        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                     }}
                   >
                     Seja bem-vindo
                   </h2>
                   <p
                     style={{
-                      fontSize: "15px",
-                      color: "#555",
+                      fontSize: "16px",
+                      color: "#333",
                       marginBottom: "32px",
+                      fontFamily:
+                        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                     }}
                   >
                     Conectando quem precisa com quem quer ajudar.
@@ -136,7 +140,7 @@ const WelcomePresentation: React.FC = () => {
                   expand="block"
                   color="danger"
                   onClick={() => history.push("/register")}
-                   style={{
+                  style={{
                     height: "48px",
                     marginBottom: "16px",
                     borderRadius: "8px",
@@ -145,7 +149,8 @@ const WelcomePresentation: React.FC = () => {
                     pointerEvents: "auto",
                     position: "relative",
                     zIndex: 3,
-                    }}>
+                  }}
+                >
                   Criar Conta
                 </IonButton>
               </div>
