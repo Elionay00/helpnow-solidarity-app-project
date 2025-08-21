@@ -20,7 +20,7 @@ import {
     IonSpinner,
     IonButtons,
     IonBackButton,
-    IonAlert, // NOVO: Para confirmar a ação 
+    IonAlert,
     useIonToast,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
@@ -28,7 +28,6 @@ import { logOutOutline, personCircleOutline, documentTextOutline, heartOutline, 
 
 // Importações do Firebase 
 import { db, auth } from '../../firebase/firebaseConfig';
-// NOVO: Importa 'doc' e 'deleteDoc' para apagar um pedido 
 import { collection, query, where, getDocs, orderBy, doc, deleteDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 
@@ -47,7 +46,6 @@ const Perfil: React.FC = () => {
     const [meusPedidos, setMeusPedidos] = useState<Pedido[]>([]);
     const [minhasAjudas, setMinhasAjudas] = useState<Pedido[]>([]);
     const [loading, setLoading] = useState(true);
-    // NOVO: Estado para o alerta de confirmação 
     const [showAlert, setShowAlert] = useState<{ isOpen: boolean, pedidoId: string | null }>({ isOpen: false, pedidoId: null });
 
     const fetchData = async () => {
@@ -88,7 +86,7 @@ const Perfil: React.FC = () => {
         }
     };
 
-    // NOVO: Função para cancelar/apagar um pedido 
+    // Função para cancelar/apagar um pedido 
     const handleCancelRequest = async (pedidoId: string) => {
         try {
             // Apaga o documento do Firebase 
@@ -169,7 +167,6 @@ const Perfil: React.FC = () => {
                             </IonListHeader>
                             {meusPedidos.length > 0 ? (
                                 meusPedidos.map(pedido => (
-                                    // ALTERADO: As propriedades 'routerLink' e 'detail' foram movidas para o IonItem 
                                     <IonItem key={pedido.id} routerLink={`/pedido/${pedido.id}`} detail={true}>
                                         <IonLabel>
                                             {pedido.titulo}
@@ -179,7 +176,6 @@ const Perfil: React.FC = () => {
                                         </IonBadge>
                                         {/* Botão de cancelar, visível apenas para pedidos abertos */}
                                         {pedido.status === 'aberto' && (
-                                            // ALTERADO: O onClick agora impede que o clique no botão ative o link do item 
                                             <IonButton fill="clear" color="danger" slot="end" onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();

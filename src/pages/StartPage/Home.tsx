@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import {
-  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton,
+  IonContent, IonHeader, IonPage, IonToolbar, IonButton,
   IonIcon, IonBadge, IonFab, IonFabButton, IonButtons,
-  IonList, IonItem, IonLabel, IonText, IonPopover,
+  IonList, IonItem, IonLabel, IonText, IonPopover, IonSearchbar
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import {
@@ -26,13 +26,11 @@ SwiperCore.use([Autoplay, Pagination, EffectFade]);
 const Home: React.FC = () => {
   const history = useHistory();
   const [notificationCount, setNotificationCount] = useState(3);
-
   const [popoverEvent, setPopoverEvent] = useState<MouseEvent | undefined>(undefined);
+  const [searchText, setSearchText] = useState("");
 
   const handleLogout = async () => {
-    // Fecha o popover e depois navega
     setPopoverEvent(undefined);
-    // Atraso de 300ms para dar tempo ao popover de fechar completamente
     setTimeout(async () => {
       try {
         await signOut(auth);
@@ -45,9 +43,7 @@ const Home: React.FC = () => {
   };
 
   const goToProfile = () => {
-    // Fecha o popover e depois navega
     setPopoverEvent(undefined);
-    // Atraso de 300ms para dar tempo ao popover de fechar completamente
     setTimeout(() => {
       history.push('/perfil');
     }, 300);
@@ -68,9 +64,19 @@ const Home: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle style={{ fontWeight: "bold", fontSize: "18px", paddingLeft: "16px" }}>
-            Ajuda já
-          </IonTitle>
+          <IonSearchbar
+            placeholder="Buscar..."
+            value={searchText}
+            onIonInput={(e) => setSearchText(e.detail.value ?? "")}
+            debounce={300}
+            animated
+            style={{
+              "--padding-start": "0px",
+              "--padding-end": "0px",
+              width: "100%",
+              margin: "0",
+            }}
+          />
           <IonButtons slot="end">
             <IonButton onClick={() => goTo('/home')} title="Home">
               <IonIcon icon={homeOutline} />
@@ -96,7 +102,7 @@ const Home: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding" style={{ "--background": "linear-gradient(to bottom, #003366, #00b3c6)" }}>
-        
+
         <IonPopover
           isOpen={popoverEvent !== undefined}
           event={popoverEvent}
