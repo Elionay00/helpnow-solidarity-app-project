@@ -4,8 +4,8 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import { useIonToast } from "@ionic/react";
 import IMask from "imask";
-import { registerSchema } from "../../../utils/validationSchemas"; // 1. Importar o schema
-import { ValidationError } from "yup"; // 2. Importar o tipo de erro do Yup
+import { registerSchema } from "../../../utils/validationSchemas";
+import { ValidationError } from "yup";
 
 function useRegisterLogic() {
   const [fullName, setFullName] = useState("");
@@ -48,34 +48,31 @@ function useRegisterLogic() {
     presentToast({ message, duration: 3000, color, position: "bottom" });
   };
 
-  // 3. Função de registro refatorada para usar o schema
   const handleRegister = async () => {
-    const cpf = cpfMaskRef.current?.unmaskedValue || "";
-    const phone = telMaskRef.current?.unmaskedValue || "";
+    const cpfRaw = await cpfInputRef.current?.getInputElement();
+    const telRaw = await telInputRef.current?.getInputElement();
+
+    const cpf = cpfRaw?.value.replace(/\D/g, "") || "";
+    const phone = telRaw?.value.replace(/\D/g, "") || "";
 
     const formData = {
-      nomeCompleto: fullName,
-      email,
+      fullName: fullName.trim(),
+      email: email.trim(),
       cpf,
-      telefone: phone,
-      senha: password,
-      confirmaSenha: confirmPassword,
+      phone,
+      password: password.trim(),
+      confirmPassword: confirmPassword.trim(),
     };
 
     try {
-      // Limpa os erros antigos antes de validar
       setErrors({});
-
-      // Valida o formulário inteiro de uma vez com o schema
       await registerSchema.validate(formData, { abortEarly: false });
 
-      // Se a validação passar, continua com o Firebase
       await createUserWithEmailAndPassword(auth, email, password);
       showToast("Cadastro realizado com sucesso!", "success");
       history.push("/home");
 
     } catch (error: any) {
-      // Se o erro for do Yup (erro de validação)
       if (error instanceof ValidationError) {
         const newErrors: Record<string, string> = {};
         error.inner.forEach((err) => {
@@ -88,7 +85,6 @@ function useRegisterLogic() {
         return;
       }
 
-      // Se for um erro do Firebase ou outro erro
       let errorMessage = "Erro ao cadastrar. Tente novamente.";
       switch (error.code) {
         case "auth/email-already-in-use":
