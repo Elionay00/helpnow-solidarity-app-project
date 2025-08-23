@@ -1,142 +1,66 @@
-import React, { Suspense, useState, useEffect } from "react";
-import {
-  IonApp,
-  IonRouterOutlet,
-  setupIonicReact,
-  IonTabBar,
-  IonTabButton,
-  IonLabel,
-  IonTabs,
-  IonIcon,
-  IonSpinner,
-  IonPage,
-  IonContent,
-} from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
-import { Redirect, Route, Switch } from "react-router-dom";
-import { homeOutline, mapOutline, personCircleOutline } from "ionicons/icons";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase/firebaseConfig";
+import React, { useState } from 'react';
+import { IonPage, IonContent, IonInput, IonButton, IonText, IonItem, IonLabel, IonRouterLink } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 
-/* CSS Imports */
-import "@ionic/react/css/core.css";
-import "@ionic/react/css/normalize.css";
-import "@ionic/react/css/structure.css";
-import "@ionic/react/css/typography.css";
-import "@ionic/react/css/padding.css";
-import "@ionic/react/css/float-elements.css";
-import "@ionic/react/css/text-alignment.css";
-import "@ionic/react/css/text-transformation.css";
-import "@ionic/react/css/flex-utils.css";
-import "@ionic/react/css/display.css";
-import "./theme/variables.css";
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const history = useHistory();
 
-/* Lazy Imports */
-const Login = React.lazy(() => import("./Autentication/userLogin/interactionUser/LoginPresentation"));
-const Register = React.lazy(() => import("./Autentication/userRegister/interactionUser/RegisterPresentation"));
-const WelcomePresentation = React.lazy(() => import("./pages/welcome/WelcomePresentation"));
-const Feed = React.lazy(() => import("./pages/community/Feed"));
-const NeedHelp = React.lazy(() => import("./pages/HelpRequests/needHelp"));
-const WantToSupport = React.lazy(() => import("./pages/SupportOffers/wantToSupport"));
-const Home = React.lazy(() => import("./pages/StartPage/Home"));
-const GoodDeedsForm = React.lazy(() => import("./pages/SupportOffers/GoodDeedsForm"));
-const MapPage = React.lazy(() => import("./pages/MapHelp/Map"));
-const RequestDetailsPage = React.lazy(() => import("./pages/HelpRequests/RequestDetails"));
-const ProfilePage = React.lazy(() => import("./pages/Profile/Profile"));
-const LogoutScreen = React.lazy(() => import("./Autentication/logout/LogoutScreen"));
-
-setupIonicReact();
-
-/* SplashScreen centralizado */
-const SplashScreen: React.FC = () => (
-  <IonPage>
-    <IonContent fullscreen>
-      <div
-        style={{
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <IonSpinner name="crescent" />
-      </div>
-    </IonContent>
-  </IonPage>
-);
-
-const AppRoutes: React.FC<{ userAuthenticated: boolean | null }> = ({ userAuthenticated }) => {
-  if (userAuthenticated === null) {
-    return <SplashScreen />;
-  }
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Lógica de autenticação do usuário
+    console.log('Login com:', email, password);
+    // history.push('/home'); // Exemplo de navegação após o login
+  };
 
   return (
-    <Suspense fallback={<SplashScreen />}>
-      <Switch>
-        {/* Tela inicial */}
-        <Route path="/" exact>
-          {userAuthenticated ? <Redirect to="/home" /> : <WelcomePresentation />}
-        </Route>
+    <IonPage>
+      <IonContent fullscreen className="ion-padding">
+        <div style={{ maxWidth: '400px', margin: 'auto', textAlign: 'center' }}>
+          <IonText>
+            <h1>Bem-vindo de volta!</h1>
+          </IonText>
+          
+          <form onSubmit={handleLogin}>
+            <IonItem>
+              <IonLabel position="floating">E-mail</IonLabel>
+              <IonInput 
+                type="email" 
+                value={email}
+                onIonChange={(e) => setEmail(e.detail.value!)}
+                required
+              />
+            </IonItem>
 
-        {/* Rotas públicas */}
-        <Route path="/register" component={Register} exact />
-        <Route path="/login" component={Login} exact />
-        <Route path="/logout" component={LogoutScreen} exact />
+            <IonItem className="ion-margin-top">
+              <IonLabel position="floating">Senha</IonLabel>
+              <IonInput 
+                type="password" 
+                value={password}
+                onIonChange={(e) => setPassword(e.detail.value!)}
+                required
+              />
+            </IonItem>
 
-        {/* Rotas protegidas com Tabs */}
-        {userAuthenticated && (
-          <Route>
-            <IonTabs>
-              <IonRouterOutlet>
-                <Route path="/home" component={Home} exact />
-                <Route path="/feed" component={Feed} exact />
-                <Route path="/preciso-de-ajuda" component={NeedHelp} exact />
-                <Route path="/quero-ajudar" component={WantToSupport} exact />
-                <Route path="/GoodDeedsForm" component={GoodDeedsForm} exact />
-                <Route path="/mapa" component={MapPage} exact />
-                <Route path="/pedido/:id" component={RequestDetailsPage} />
-                <Route path="/perfil" component={ProfilePage} exact />
-              </IonRouterOutlet>
+            <IonButton 
+              expand="block" 
+              type="submit" 
+              className="ion-margin-top"
+            >
+              Entrar
+            </IonButton>
+          </form>
 
-              <IonTabBar slot="bottom">
-                <IonTabButton tab="home" href="/home">
-                  <IonIcon icon={homeOutline} />
-                  <IonLabel>Home</IonLabel>
-                </IonTabButton>
-                <IonTabButton tab="map" href="/mapa">
-                  <IonIcon icon={mapOutline} />
-                  <IonLabel>Mapa</IonLabel>
-                </IonTabButton>
-                <IonTabButton tab="profile" href="/perfil">
-                  <IonIcon icon={personCircleOutline} />
-                  <IonLabel>Perfil</IonLabel>
-                </IonTabButton>
-              </IonTabBar>
-            </IonTabs>
-          </Route>
-        )}
-      </Switch>
-    </Suspense>
+          {/* O link para a página de recuperação de senha */}
+          <IonRouterLink routerLink="/forgot-password" className="ion-margin-top ion-display-block">
+            Esqueceu a senha?
+          </IonRouterLink>
+
+        </div>
+      </IonContent>
+    </IonPage>
   );
 };
 
-const App: React.FC = () => {
-  const [userAuthenticated, setUserAuthenticated] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUserAuthenticated(!!user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  return (
-    <IonApp>
-      <IonReactRouter>
-        <AppRoutes userAuthenticated={userAuthenticated} />
-      </IonReactRouter>
-    </IonApp>
-  );
-};
-
-export default App;
+export default Login;
