@@ -1,117 +1,122 @@
+import React from 'react';
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonButton,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonCard,
-  IonCardContent,
-  IonText,
-  IonIcon
+  IonPage, IonContent, IonInput, IonButton,
+  IonText, IonItem, IonLabel, IonRouterLink, IonIcon
 } from '@ionic/react';
-import { eye, eyeOff } from 'ionicons/icons';
-import helpnowLogo from "../../../images/helpnow.png";
-import { useLoginLogic } from '../logicLayer/LoginLogic'; // Import do hook
+import { useLoginLogic } from '../logicLayer/LoginLogic';
+import { eye, eyeOff, mailOutline, lockClosedOutline } from 'ionicons/icons';
 
-const LoginPresentation: React.FC = () => {
+// Estilos como objetos para melhor organização
+const styles = {
+  title: {
+    fontSize: '2em',
+    fontWeight: '700',
+    marginBottom: '2em',
+    marginTop: '1em',
+    color: 'var(--app-text-dark)'
+  },
+  label: {
+    display: 'block',
+    marginBottom: '8px',
+    fontWeight: '600',
+    color: 'var(--app-text-dark)',
+    fontSize: '1em'
+  },
+  forgotPasswordLink: {
+    fontSize: '0.9em',
+    color: 'var(--app-text-light)',
+    textDecoration: 'none'
+  },
+  loginButton: {
+    '--background': 'var(--app-primary-color)',
+    '--border-radius': '8px',
+    '--box-shadow': 'none',
+    height: '50px',
+    fontSize: '1.1em',
+    fontWeight: '500',
+    textTransform: 'none' as const,
+  },
+  createAccountLink: {
+    color: 'var(--app-text-light)',
+    textDecoration: 'none'
+  },
+  createAccountHighlight: {
+    color: 'var(--app-primary-color)',
+    fontWeight: '700'
+  }
+};
+
+const LoginPresentation = () => {
   const {
     email,
     setEmail,
     password,
     setPassword,
-    showPassword,
-    setShowPassword,
+    loading,
+    error,
     handleLogin,
-    goToRegister,
+    showPassword,
+    toggleShowPassword,
   } = useLoginLogic();
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle style={{ fontWeight: 'bold', fontSize: '18px' }}>Minha conta</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <IonContent fullscreen className="ion-padding">
+        <div style={{ maxWidth: '400px', margin: 'auto', textAlign: 'center' }}>
 
-      <IonContent>
-        <IonGrid>
-          <IonRow className="ion-justify-content-center ion-align-items-center" style={{ height: '100%' }}>
-            <IonCol size="12" sizeMd="6" sizeLg="4">
-              <IonCard className="ion-padding">
-                <IonCardContent>
-                  <IonText color="primary">
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginBottom: '16px'
-                    }}>
-                      <img
-                        src={helpnowLogo}
-                        alt="Logo Ajuda Já"
-                        style={{ height: '200px', objectFit: 'contain' }}
-                      />
-                    </div>
-                  </IonText>
+          <IonText>
+            <h1 style={styles.title}>Faça seu login</h1>
+          </IonText>
 
-                  {/* Campo Email */}
-                  <IonItem className="ion-margin-top">
-                    <IonLabel position="floating" style={{ fontSize: '16px', color: '#000', marginBottom: '6px' }}>
-                      <strong>Email</strong>
-                    </IonLabel>
-                    <IonInput
-                      type="email"
-                      value={email}
-                      onIonChange={e => setEmail(e.detail.value!)}
-                      placeholder="Digite seu email..."
-                    />
-                  </IonItem>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}>
 
-                  {/* Campo Senha */}
-                  <IonItem className="ion-margin-top">
-                    <IonLabel position="floating" style={{ fontSize: '16px', color: '#000', marginBottom: '6px' }}>
-                      <strong>Senha</strong>
-                    </IonLabel>
-                    <IonInput
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onIonChange={e => setPassword(e.detail.value!)}
-                      placeholder="Digite sua senha..."
-                      style={{ width: '90%' }}
-                    />
-                    <IonIcon
-                      icon={showPassword ? eyeOff : eye}
-                      slot="end"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{ fontSize: '20px', cursor: 'pointer', marginLeft: '8px', marginTop: '45px' }}
-                    />
-                  </IonItem>
+            <IonLabel className="ion-text-start" style={styles.label}>E-mail</IonLabel>
+            <IonItem lines="none" className="custom-input-item">
+              <IonIcon icon={mailOutline} slot="start" />
+              <IonInput
+                type="email"
+                placeholder="seuemail@exemplo.com"
+                value={email}
+                onIonChange={(e) => setEmail(e.detail.value!)}
+                required
+              />
+            </IonItem>
 
-                  {/* Botão Entrar */}
-                  <IonButton
-                    expand="block"
-                    className="ion-margin-top ion-margin-bottom"
-                    onClick={handleLogin}>
-                    Entrar
-                  </IonButton>
+            <IonLabel className="ion-text-start ion-margin-top" style={styles.label}>Senha</IonLabel>
+            <IonItem lines="none" className="custom-input-item">
+              <IonIcon icon={lockClosedOutline} slot="start" />
+              <IonInput
+                type={showPassword ? 'text' : 'password'}
+                placeholder="sua senha"
+                value={password}
+                onIonChange={(e) => setPassword(e.detail.value!)}
+                required
+              />
+              <IonButton fill="clear" onClick={toggleShowPassword} slot="end" className="password-toggle-button">
+                <IonIcon icon={showPassword ? eyeOff : eye} slot="icon-only" />
+              </IonButton>
+            </IonItem>
 
-                  {/* Link para Cadastro */}
-                  <p className="ion-text-center ion-margin-top">
-                    <strong>Não tem uma conta?</strong>{' '}
-                    <a onClick={goToRegister} style={{ cursor: 'pointer' }}>Cadastre-se aqui.</a>
-                  </p>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
+            {error && <IonText color="danger"><p style={{ textAlign: 'start', margin: '10px 0 0 0' }}>{error}</p></IonText>}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px', marginBottom: '30px' }}>
+              <IonRouterLink routerLink="/forgot-password" style={styles.forgotPasswordLink}>
+                Esqueci minha senha
+              </IonRouterLink>
+            </div>
+
+            <IonButton expand="block" type="submit" disabled={loading} style={styles.loginButton}>
+              {loading ? 'Entrando...' : 'Entrar'}
+            </IonButton>
+          </form>
+
+          <IonRouterLink routerLink="/register" className="ion-margin-top ion-display-block" style={styles.createAccountLink}>
+            Não tem conta ainda? <span style={styles.createAccountHighlight}>Crie agora</span>
+          </IonRouterLink>
+        </div>
       </IonContent>
     </IonPage>
   );

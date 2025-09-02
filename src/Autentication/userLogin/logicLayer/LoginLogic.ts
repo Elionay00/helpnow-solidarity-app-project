@@ -7,6 +7,10 @@ import { auth } from '../../../firebase/firebaseConfig';
 export function useLoginLogic() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  
+  // --- ADICIONADO ---
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const history = useHistory();
@@ -27,15 +31,17 @@ export function useLoginLogic() {
       return;
     }
 
+    setLoading(true);
+    setError('');
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       showToast('Login realizado com sucesso!', 'success');
       history.push('/home');
     } catch (err: any) {
+      // ... (código de tratamento de erro continua o mesmo)
       console.error('Erro ao fazer login:', err.code, err.message);
-
       let errorMessage = 'Erro ao fazer login. Verifique seus dados e tente novamente.';
-
       switch (err.code) {
         case 'auth/user-not-found':
         case 'auth/wrong-password':
@@ -54,8 +60,9 @@ export function useLoginLogic() {
           errorMessage = `Ocorreu um erro: ${err.message}`;
           break;
       }
-
-      showToast(errorMessage);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -63,14 +70,22 @@ export function useLoginLogic() {
     history.push('/register');
   };
 
+  // --- ADICIONADO ---
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   return {
     email,
     setEmail,
     password,
     setPassword,
-    showPassword,
-    setShowPassword,
     handleLogin,
     goToRegister,
+    loading,
+    error,
+    // --- ADICIONADO ---
+    showPassword,
+    toggleShowPassword,
   };
 }
