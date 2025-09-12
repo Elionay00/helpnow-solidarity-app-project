@@ -1,0 +1,28 @@
+/* src/pages/logout/LogoutScreen.css */
+.logout-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.content-wrapper {
+  max-width: 400px;
+  width: 100%;
+  padding: 0 16px;
+}
+
+.logout-message h2 {
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+  color: var(--ion-color-step-900);
+}
+
+.logout-message p {
+  font-size: 1.1rem;
+  color: var(--ion-color-medium);
+}
+
+.logout-container ion-button {
+  margin-top: 24px;
+}
