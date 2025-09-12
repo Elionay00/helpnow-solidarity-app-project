@@ -12,11 +12,11 @@ import {
   IonIcon,
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
-import { arrowBackOutline } from "ionicons/icons"; // Ícone de voltar
+import { arrowBackOutline } from "ionicons/icons";
 
 // Componente da página "Quero Ajudar"
 const WantToSupport: React.FC = () => {
-  const history = useHistory(); // Hook para navegação
+  const history = useHistory();
 
   return (
     <IonPage>
@@ -39,7 +39,7 @@ const WantToSupport: React.FC = () => {
         fullscreen
         className="ion-padding"
         style={{
-          "--background": "linear-gradient(to bottom, #e0f7fa, #c8e6c9)", // Gradiente de fundo suave
+          "--background": "linear-gradient(to bottom, #e0f7fa, #c8e6c9)",
         }}
       >
         {/* Container centralizado com conteúdo */}
@@ -117,12 +117,12 @@ const WantToSupport: React.FC = () => {
             Ver pedidos de ajuda
           </IonButton>
 
-          {/* Botão novo para ir ao formulário (ainda sem funcionalidade) */}
+          {/* Botão para ir ao formulário de ajudar */}
           <IonButton
             expand="block"
             routerLink="/GoodDeedsForm"
             style={{
-              "--background": "#00b3c6", // mesma cor do botão de cima
+              "--background": "#00b3c6",
               "--background-activated": "#008c9e",
               "--color": "#ffffff",
               borderRadius: "12px",
@@ -136,6 +136,27 @@ const WantToSupport: React.FC = () => {
             }}
           >
             Quero ajudar agora
+          </IonButton>
+
+          {/* NOVO: BOTÃO PARA A PÁGINA DE AFILIAÇÃO */}
+          <IonButton
+            expand="block"
+            routerLink="/doar-afiliado"
+            style={{
+              "--background": "#28a745",
+              "--background-activated": "#218838",
+              "--color": "#ffffff",
+              borderRadius: "12px",
+              height: "55px",
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              marginBottom: "18px",
+              boxShadow: "0 8px 18px rgba(0, 0, 0, 0.2)",
+              width: "100%",
+              maxWidth: "300px",
+            }}
+          >
+            Comprar e Doar
           </IonButton>
 
           {/* Botão para voltar à tela anterior */}

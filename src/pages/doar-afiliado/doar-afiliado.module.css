@@ -1,0 +1,10 @@
+.background {
+  --ion-background-color: var(--ion-background-color, #ffffff);
+}
+
+.contentCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

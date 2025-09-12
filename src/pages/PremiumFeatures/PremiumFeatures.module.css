@@ -1,0 +1,13 @@
+/* Este CSS garante que a página tenha um fundo branco */
+.background {
+  --ion-background-color: var(--ion-background-color, #ffffff);
+}
+
+/* Centraliza o conteúdo verticalmente */
+.contentCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}

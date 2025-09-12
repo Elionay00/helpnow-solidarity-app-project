@@ -97,6 +97,16 @@ const ProfileUser: React.FC = () => {
               <IonIcon slot="start" icon={logOutOutline} />
               Logout
             </IonButton>
+
+            <IonButton
+              routerLink="/premium-features"
+              expand="block"
+              color="secondary"
+              className="ion-margin-top"
+            >
+              Seja Premium!
+            </IonButton>
+
           </IonCardContent>
         </IonCard>
 

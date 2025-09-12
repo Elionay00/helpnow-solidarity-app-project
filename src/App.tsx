@@ -13,7 +13,7 @@ import {
   IonContent,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Redirect, Route } from "react-router-dom";
 import { homeOutline, mapOutline, personCircleOutline } from "ionicons/icons";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebaseConfig";
@@ -44,6 +44,8 @@ const MapPage = React.lazy(() => import("./pages/MapHelp/Map"));
 const RequestDetailsPage = React.lazy(() => import("./pages/HelpRequests/RequestDetails"));
 const ProfilePage = React.lazy(() => import("./pages/Profile/Profile"));
 const LogoutScreen = React.lazy(() => import("./Autentication/logout/LogoutScreen"));
+const PremiumFeatures = React.lazy(() => import("./pages/PremiumFeatures/PremiumFeatures"));
+const DoarAfiliado = React.lazy(() => import("./pages/doar-afiliado/doar-afiliado"));
 
 setupIonicReact();
 
@@ -72,7 +74,7 @@ const AppRoutes: React.FC<{ userAuthenticated: boolean | null }> = ({ userAuthen
 
   return (
     <Suspense fallback={<SplashScreen />}>
-      <Switch>
+      <IonRouterOutlet>
         {/* Tela inicial */}
         <Route path="/" exact>
           {userAuthenticated ? <Redirect to="/home" /> : <WelcomePresentation />}
@@ -83,21 +85,23 @@ const AppRoutes: React.FC<{ userAuthenticated: boolean | null }> = ({ userAuthen
         <Route path="/login" component={Login} exact />
         <Route path="/logout" component={LogoutScreen} exact />
 
-        {/* Rotas protegidas com Tabs */}
+        {/* Rotas protegidas (sem abas) */}
+        <Route path="/preciso-de-ajuda" component={NeedHelp} exact />
+        <Route path="/quero-ajudar" component={WantToSupport} exact />
+        <Route path="/GoodDeedsForm" component={GoodDeedsForm} exact />
+        <Route path="/pedido/:id" component={RequestDetailsPage} />
+        <Route path="/premium-features" component={PremiumFeatures} exact />
+        <Route path="/doar-afiliado" component={DoarAfiliado} exact />
+
+        {/* Rotas das abas (se o usuário estiver autenticado) */}
         {userAuthenticated && (
-          <Route>
+          <Route path={["/home", "/mapa", "/perfil"]}>
             <IonTabs>
               <IonRouterOutlet>
                 <Route path="/home" component={Home} exact />
-                <Route path="/feed" component={Feed} exact />
-                <Route path="/preciso-de-ajuda" component={NeedHelp} exact />
-                <Route path="/quero-ajudar" component={WantToSupport} exact />
-                <Route path="/GoodDeedsForm" component={GoodDeedsForm} exact />
                 <Route path="/mapa" component={MapPage} exact />
-                <Route path="/pedido/:id" component={RequestDetailsPage} />
                 <Route path="/perfil" component={ProfilePage} exact />
               </IonRouterOutlet>
-
               <IonTabBar slot="bottom">
                 <IonTabButton tab="home" href="/home">
                   <IonIcon icon={homeOutline} />
@@ -115,7 +119,7 @@ const AppRoutes: React.FC<{ userAuthenticated: boolean | null }> = ({ userAuthen
             </IonTabs>
           </Route>
         )}
-      </Switch>
+      </IonRouterOutlet>
     </Suspense>
   );
 };
