@@ -1,7 +1,9 @@
+// Ficheiro: src/firebase/firebaseConfig.ts
+
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
-
+import { getStorage, FirebaseStorage } from 'firebase/storage'; // Adicionei a importação do storage
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,5 +16,9 @@ const firebaseConfig = {
 
 const app: FirebaseApp = initializeApp(firebaseConfig);
 
+// AQUI ESTÁ A CORREÇÃO: Exportamos tudo com os nomes que as outras páginas esperam
 export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+export const firestore: Firestore = getFirestore(app); // Padronizado para 'firestore'
+export const storage: FirebaseStorage = getStorage(app); // Exportando o 'storage' que faltava
+
+export default app;

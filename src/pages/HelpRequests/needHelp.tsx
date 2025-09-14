@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -7,125 +7,86 @@ import {
   IonToolbar,
   IonButtons,
   IonBackButton,
+  IonList,
   IonItem,
   IonLabel,
   IonInput,
   IonTextarea,
+  IonSelect,
+  IonSelectOption,
   IonButton,
-  IonIcon,
   useIonToast,
-  useIonLoading,
-} from "@ionic/react";
-import { useHistory } from "react-router-dom";
-import { sendOutline, locationOutline } from "ionicons/icons";
-
-// Importações do Firebase
-import { db, auth } from "../../firebase/firebaseConfig";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+  IonSpinner
+} from '@ionic/react';
+import { useHistory } from 'react-router-dom';
+import { firestore, auth, storage } from '../../firebase/firebaseConfig';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const NeedHelp: React.FC = () => {
   const history = useHistory();
-  const [presentToast] = useIonToast();
-  const [presentLoading, dismissLoading] = useIonLoading();
+  const [present] = useIonToast();
+  
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [urgency, setUrgency] = useState('media');
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Variáveis de estado (em inglês) para guardar os dados do formulário
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // Controla se o formulário está a ser enviado
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setPhoto(event.target.files[0]);
+    }
+  };
 
-  // Função (em inglês) para lidar com o envio do formulário
-  const handleFormSubmit = async () => {
-    // 1. Validação para garantir que os campos não estão vazios
-    if (!title.trim() || !description.trim()) {
-      presentToast({
-        message: "Por favor, preencha o título e a descrição.",
-        duration: 2000,
-        color: "warning",
-      });
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const user = auth.currentUser;
+
+    if (!user) {
+      present({ message: 'Você precisa estar logado para criar um pedido.', duration: 3000, color: 'danger' });
+      history.push('/login');
       return;
     }
 
-    // 2. Validação para garantir que o utilizador está autenticado
-    if (!auth.currentUser) {
-      presentToast({
-        message: "Você precisa de estar logado para fazer um pedido.",
-        duration: 3000,
-        color: "danger",
-      });
-      history.push("/login");
+    if (!title || !description || !category) {
+      present({ message: 'Por favor, preencha todos os campos obrigatórios.', duration: 3000, color: 'warning' });
       return;
     }
 
     setIsSubmitting(true);
-    presentLoading({ message: "A obter a sua localização..." });
 
-    // 3. Captura da localização do utilizador através da API do navegador
-    if (!navigator.geolocation) {
-      dismissLoading();
-      setIsSubmitting(false);
-      presentToast({
-        message: "Geolocalização não é suportada neste navegador.",
-        duration: 3000,
-        color: "danger",
-      });
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-
-        // 4. Preparação do objeto (em inglês) com os dados do novo pedido
-        const newRequest = {
-          titulo: title,
-          descricao: description,
-          localizacao: {
-            latitude: latitude,
-            longitude: longitude,
-          },
-          userId: auth.currentUser?.uid, // ID do utilizador que fez o pedido
-          createdAt: serverTimestamp(), // Data e hora do servidor
-          status: "aberto", // Status inicial do pedido
-        };
-
-        await presentLoading({ message: "A enviar o seu pedido..." });
-
-        // 5. Envio do novo pedido para a coleção 'pedidosDeAjuda' no Firebase
-        try {
-          await addDoc(collection(db, "pedidosDeAjuda"), newRequest);
-
-          dismissLoading();
-          presentToast({
-            message: "O seu pedido foi enviado com sucesso!",
-            duration: 2000,
-            color: "success",
-          });
-
-          // Redireciona o utilizador para o mapa para ver o seu novo pedido
-          history.push("/mapa");
-        } catch (error) {
-          console.error("Error saving request: ", error);
-          dismissLoading();
-          setIsSubmitting(false);
-          presentToast({
-            message: "Ocorreu um erro ao enviar o seu pedido.",
-            duration: 3000,
-            color: "danger",
-          });
-        }
-      },
-      (error) => {
-        console.error("Geolocation error: ", error);
-        dismissLoading();
-        setIsSubmitting(false);
-        presentToast({
-          message:
-            "Não foi possível obter a sua localização. Verifique as permissões.",
-          duration: 3000,
-          color: "danger",
-        });
+    try {
+      let photoURL = '';
+      if (photo) {
+        const photoRef = ref(storage, `helpRequests/${user.uid}/${Date.now()}_${photo.name}`);
+        const snapshot = await uploadBytes(photoRef, photo);
+        photoURL = await getDownloadURL(snapshot.ref);
       }
-    );
+
+      await addDoc(collection(firestore, 'helpRequests'), {
+        title,
+        description,
+        category,
+        urgency,
+        photoURL,
+        requesterId: user.uid,
+        requesterName: user.displayName || 'Anônimo',
+        requesterPhotoURL: user.photoURL || '',
+        createdAt: serverTimestamp(),
+        status: 'aberto',
+      });
+
+      present({ message: 'Seu pedido de ajuda foi enviado com sucesso!', duration: 2000, color: 'success' });
+      history.push('/feed');
+    
+    } catch (error) {
+      console.error("Erro ao criar pedido: ", error);
+      present({ message: 'Ocorreu um erro ao enviar seu pedido. Tente novamente.', duration: 3000, color: 'danger' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -138,45 +99,17 @@ const NeedHelp: React.FC = () => {
           <IonTitle>Pedir Ajuda</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen className="ion-padding">
-        <IonItem>
-          <IonLabel position="floating">Título do Pedido</IonLabel>
-          <IonInput
-            value={title}
-            onIonChange={(e) => setTitle(e.detail.value!)}
-            placeholder="Ex: Preciso de uma cesta básica"
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel position="floating">Descreva o que você precisa</IonLabel>
-          <IonTextarea
-            value={description}
-            onIonChange={(e) => setDescription(e.detail.value!)}
-            rows={6}
-            placeholder="Descreva com mais detalhes a sua necessidade..."
-          />
-        </IonItem>
-
-        <div className="ion-padding-top">
-          <p style={{ textAlign: "center", fontSize: "0.8rem", color: "gray" }}>
-            <IonIcon
-              icon={locationOutline}
-              style={{ verticalAlign: "bottom" }}
-            />
-            A sua localização será partilhada para que a ajuda possa chegar até
-            si.
-          </p>
-        </div>
-
-        <IonButton
-          expand="block"
-          onClick={handleFormSubmit}
-          disabled={isSubmitting}
-          className="ion-margin-top"
-        >
-          <IonIcon slot="start" icon={sendOutline} />
-          {isSubmitting ? "A Enviar..." : "Enviar Pedido de Ajuda"}
-        </IonButton>
+      <IonContent className="ion-padding">
+        <form onSubmit={handleSubmit}>
+          <IonList>
+            <IonItem><IonLabel position="floating">Título do Pedido</IonLabel><IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} required /></IonItem>
+            <IonItem><IonLabel position="floating">Descreva sua necessidade</IonLabel><IonTextarea value={description} onIonChange={e => setDescription(e.detail.value!)} rows={5} required /></IonItem>
+            <IonItem><IonLabel>Categoria</IonLabel><IonSelect value={category} placeholder="Selecione uma" onIonChange={e => setCategory(e.detail.value)} required><IonSelectOption value="alimentacao">Alimentação</IonSelectOption><IonSelectOption value="moradia">Moradia</IonSelectOption><IonSelectOption value="saude">Saúde</IonSelectOption><IonSelectOption value="educacao">Educação</IonSelectOption><IonSelectOption value="transporte">Transporte</IonSelectOption><IonSelectOption value="outros">Outros</IonSelectOption></IonSelect></IonItem>
+            <IonItem><IonLabel>Nível de Urgência</IonLabel><IonSelect value={urgency} onIonChange={e => setUrgency(e.detail.value)}><IonSelectOption value="baixa">Baixa</IonSelectOption><IonSelectOption value="media">Média</IonSelectOption><IonSelectOption value="alta">Alta</IonSelectOption></IonSelect></IonItem>
+            <IonItem><IonLabel>Foto (Opcional)</IonLabel><input type="file" accept="image/*" onChange={handlePhotoChange} style={{ marginTop: '10px' }} /></IonItem>
+          </IonList>
+          <IonButton type="submit" expand="block" className="ion-margin-top" disabled={isSubmitting}>{isSubmitting ? <IonSpinner name="crescent" /> : 'Enviar Pedido'}</IonButton>
+        </form>
       </IonContent>
     </IonPage>
   );

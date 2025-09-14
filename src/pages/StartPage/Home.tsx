@@ -26,12 +26,14 @@ import {
   notificationsOutline,
   mapOutline,
   ellipsisVertical,
-  personCircleOutline,
   settingsOutline,
   logOutOutline,
+  giftOutline,
 } from "ionicons/icons";
+
+// ✅ Importação correta para Swiper v9.4.1
 import { Swiper, SwiperSlide } from "swiper/react";
-import SwiperCore, { Autoplay, Pagination, EffectFade } from "swiper";
+import { Autoplay, Pagination, EffectFade } from "swiper";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -42,14 +44,10 @@ import familyreceivinghelp from "../../images/familyreceivinghelp.jpeg";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
 
-SwiperCore.use([Autoplay, Pagination, EffectFade]);
-
 const Home: React.FC = () => {
   const history = useHistory();
   const [notificationCount, setNotificationCount] = useState(3);
-  const [popoverEvent, setPopoverEvent] = useState<MouseEvent | undefined>(
-    undefined
-  );
+  const [popoverEvent, setPopoverEvent] = useState<MouseEvent | undefined>(undefined);
   const [searchText, setSearchText] = useState("");
 
   const handleLogout = async () => {
@@ -155,9 +153,7 @@ const Home: React.FC = () => {
       <IonContent
         fullscreen
         className="ion-padding"
-        style={{
-          "--background": "linear-gradient(to bottom, #003366, #00b3c6)",
-        }}
+        style={{ "--background": "linear-gradient(to bottom, #003366, #00b3c6)" }}
       >
         <IonPopover
           isOpen={popoverEvent !== undefined}
@@ -189,6 +185,7 @@ const Home: React.FC = () => {
         />
 
         <Swiper
+          modules={[Autoplay, Pagination, EffectFade]}
           effect="fade"
           loop
           autoplay={{ delay: 4000, disableOnInteraction: false }}
@@ -243,6 +240,15 @@ const Home: React.FC = () => {
 
         <IonButton
           expand="block"
+          color="success"
+          onClick={() => goTo("/doar-afiliado")}
+          style={{ marginBottom: 16 }}
+        >
+          <IonIcon slot="start" icon={giftOutline} />
+          Doar Cesta Básica
+        </IonButton>
+        <IonButton
+          expand="block"
           color="light"
           onClick={() => goTo("/preciso-de-ajuda")}
           style={{ marginBottom: 16 }}
@@ -265,11 +271,7 @@ const Home: React.FC = () => {
         </IonButton>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton
-            onClick={() => goTo("/mapa")}
-            color="tertiary"
-            title="Ver no Mapa"
-          >
+          <IonFabButton onClick={() => goTo("/mapa")} color="tertiary" title="Ver no Mapa">
             <IonIcon icon={mapOutline} />
           </IonFabButton>
         </IonFab>

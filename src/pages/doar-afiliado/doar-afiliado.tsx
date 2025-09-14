@@ -7,38 +7,18 @@ import {
   IonButtons,
   IonBackButton,
   IonButton,
-  IonText,
-  useIonToast
+  IonText
 } from '@ionic/react';
 import React from 'react';
 import styles from './doar-afiliado.module.css';
-import { ApiService } from '../../services/api.service';
+
+// Link guardado numa constante para ser mais fácil de encontrar e alterar
+const URL_CESTA_BASICA = 'https://www.amazon.com.br/Cesta-B%C3%A1sica-Alimentos-Pr%C3%A1tica-Higiene/dp/B08X4T6N2Q/';
 
 const DoarAfiliado: React.FC = () => {
-  const [presentToast] = useIonToast();
-
-  const handleComprarEDoar = async () => {
-    try {
-      const response = await ApiService.getAffiliateLink('cesta-basica');
-      
-      if (response.url) {
-        window.open(response.url, '_blank');
-      } else {
-        presentToast({
-            message: 'URL de afiliado não encontrada.',
-            duration: 3000,
-            color: 'danger'
-        });
-        console.error('URL de afiliado não encontrada.');
-      }
-    } catch (error) {
-      presentToast({
-        message: 'Erro ao buscar o link. Verifique sua conexão.',
-        duration: 3000,
-        color: 'danger'
-      });
-      console.error('Erro ao buscar o link:', error);
-    }
+  
+  const handleComprarEDoar = () => {
+    window.open(URL_CESTA_BASICA, '_blank');
   };
 
   return (
@@ -51,16 +31,19 @@ const DoarAfiliado: React.FC = () => {
           <IonTitle>Comprar e Doar</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen className={styles.background + ' ' + styles.contentCenter}>
-        <div style={{ padding: '20px' }}>
-          <IonText>
-            <h1>Doe uma Cesta Básica</h1>
-            <p>Seja um herói local e ajude uma família. Clique no botão abaixo para comprar a cesta básica em uma loja parceira. A loja fará a entrega para você, e a sua doação fará toda a diferença!</p>
-          </IonText>
-          <IonButton expand="block" color="success" className="ion-margin-top" onClick={handleComprarEDoar}>
-            Comprar e Doar
-          </IonButton>
-        </div>
+      
+      {/* A MUDANÇA ESTÁ AQUI: Usamos a classe "ion-padding" para dar espaçamento */}
+      <IonContent fullscreen className={styles.background + " ion-padding"}>
+        
+        {/* O conteúdo agora vai aparecer corretamente */}
+        <IonText>
+          <h1>Doe uma Cesta Básica</h1>
+          <p>Seja um herói local e ajude uma família. Clique no botão abaixo para comprar a cesta básica em uma loja parceira. A loja fará a entrega para você, e a sua doação fará toda a diferença!</p>
+        </IonText>
+        <IonButton expand="block" color="success" className="ion-margin-top" onClick={handleComprarEDoar}>
+          Comprar e Doar
+        </IonButton>
+        
       </IonContent>
     </IonPage>
   );
