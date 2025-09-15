@@ -22,33 +22,29 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Importações do Firebase
-import { db } from '../../firebase/firebaseConfig';
+// Importações do Firebase (LINHA CORRIGIDA)
+import { firestore as db, auth } from "../../firebase/firebaseConfig";
 import { collection, getDocs } from 'firebase/firestore';
 
 // --- Ícones Personalizados ---
-// Ícone vermelho para pedidos "abertos"
 const openIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 
-// Ícone amarelo para pedidos "em atendimento"
 const inProgressIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 
-// Ícone azul para a localização do utilizador
 const userLocationIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 
-// Ícone verde para os Pontos de Acesso (CRAS)
 const accessPointIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -139,7 +135,6 @@ const MapPage: React.FC = () => {
     fetchData();
   });
 
-  // CORRIGIDO: Função completa para encontrar a localização do utilizador
   const findMyLocation = () => {
     if (!mapInstance) return;
     if (navigator.geolocation) {
@@ -157,7 +152,6 @@ const MapPage: React.FC = () => {
     }
   };
 
-  // CORRIGIDO: Função completa para obter o ícone com base no status
   const getIconByStatus = (status: string) => {
     return status === 'em_atendimento' ? inProgressIcon : openIcon;
   };
@@ -178,7 +172,6 @@ const MapPage: React.FC = () => {
           <MapContainer center={initialPosition} zoom={14} style={{ height: '100%', width: '100%' }}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             
-            {/* Renderiza os marcadores dos pedidos de ajuda (vermelhos/amarelos) */}
             {helpRequests.map(request => (
               <Marker
                 key={request.id}
@@ -193,7 +186,6 @@ const MapPage: React.FC = () => {
               </Marker>
             ))}
 
-            {/* Renderiza os marcadores dos pontos de acesso (verdes) */}
             {accessPoints.map(point => (
                 <Marker
                     key={point.id}
@@ -221,4 +213,3 @@ const MapPage: React.FC = () => {
 };
 
 export default MapPage;
- 

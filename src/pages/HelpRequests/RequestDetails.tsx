@@ -26,7 +26,7 @@ import {
 } from "ionicons/icons";
 
 // Importações do Firebase
-import { db, auth } from "../../firebase/firebaseConfig";
+import { firestore as db, auth } from "../../firebase/firebaseConfig";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore"; // onSnapshot é para ouvir em tempo real
 
 // Interface (em inglês) para a estrutura de um pedido de ajuda

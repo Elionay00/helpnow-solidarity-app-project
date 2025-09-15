@@ -97,16 +97,6 @@ const ProfileUser: React.FC = () => {
               <IonIcon slot="start" icon={logOutOutline} />
               Logout
             </IonButton>
-
-            <IonButton
-              routerLink="/premium-features"
-              expand="block"
-              color="secondary"
-              className="ion-margin-top"
-            >
-              Seja Premium!
-            </IonButton>
-
           </IonCardContent>
         </IonCard>
 
@@ -196,4 +186,5 @@ const ProfileUser: React.FC = () => {
   );
 };
 
+// CORREÇÃO: O nome aqui deve ser o mesmo do componente definido acima
 export default ProfileUser;

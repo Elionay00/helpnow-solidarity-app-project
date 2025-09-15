@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { db, auth } from "../../firebase/firebaseConfig";
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  orderBy, 
-  doc, 
-  deleteDoc 
+import { firestore as db, auth } from "../../firebase/firebaseConfig";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  doc,
+  deleteDoc,
 } from "firebase/firestore";
 import { signOut, User } from "firebase/auth";
 
@@ -15,17 +15,19 @@ export interface Request {
   id: string;
   title: string;
   status: "open" | "in_progress" | "completed";
+  // Adicione outras propriedades que seus documentos possam ter
+  [key: string]: any;
 }
 
-export const usePerfilLogic = (presentToast: any) => { 
-  const [user, setUser] = useState<User | null>(auth.currentUser); 
+export const usePerfilLogic = (presentToast: any) => {
+  // CORREÇÃO: Iniciar o usuário como 'null' e deixar o useEffect cuidar da verificação.
+  const [user, setUser] = useState<User | null>(null);
   const [myRequests, setMyRequests] = useState<Request[]>([]);
   const [myHelps, setMyHelps] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 2. Função de Busca de Dados
-  const fetchData = async (uid: string) => { 
-    setLoading(true);
+  const fetchData = async (uid: string) => {
+    // Não precisa de setLoading(true) aqui, pois o estado geral já controla isso
     try {
       const requestsQuery = query(
         collection(db, "helpRequests"),
@@ -33,7 +35,11 @@ export const usePerfilLogic = (presentToast: any) => {
         orderBy("createdAt", "desc")
       );
       const requestsSnapshot = await getDocs(requestsQuery);
-      setMyRequests(requestsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Request)));
+      setMyRequests(
+        requestsSnapshot.docs.map(
+          (doc) => ({ id: doc.id, ...doc.data() } as Request)
+        )
+      );
 
       const helpsQuery = query(
         collection(db, "helpRequests"),
@@ -41,50 +47,58 @@ export const usePerfilLogic = (presentToast: any) => {
         orderBy("createdAt", "desc")
       );
       const helpsSnapshot = await getDocs(helpsQuery);
-      setMyHelps(helpsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Request)));
+      setMyHelps(
+        helpsSnapshot.docs.map(
+          (doc) => ({ id: doc.id, ...doc.data() } as Request)
+        )
+      );
     } catch (error) {
       console.error("Error fetching profile data: ", error);
+      presentToast({
+        message: 'Erro ao carregar os dados do perfil.',
+        duration: 3000,
+        color: 'danger',
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // 3. Efeito para Carregar Dados
   useEffect(() => {
-    // Escuta mudanças no estado de autenticação para obter o usuário
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         fetchData(currentUser.uid);
       } else {
+        // Se não houver usuário, paramos o loading e as listas ficam vazias.
         setLoading(false);
       }
     });
 
-    return () => unsubscribe(); // Limpeza do listener ao desmontar o componente
-  }, []);
+    return () => unsubscribe();
+  }, []); // A dependência vazia está correta aqui
 
-  // 4. Funções de Manipulação
   const handleLogout = async () => {
     await signOut(auth);
+    // O onAuthStateChanged vai detectar o logout e limpar o estado do usuário automaticamente
   };
 
   const handleCancelRequest = async (requestId: string) => {
     if (!requestId) return;
     try {
       await deleteDoc(doc(db, "helpRequests", requestId));
-      setMyRequests(prev => prev.filter(p => p.id !== requestId));
+      setMyRequests((prev) => prev.filter((p) => p.id !== requestId));
       presentToast({
-        message: 'Request successfully canceled!',
+        message: "Pedido cancelado com sucesso!",
         duration: 3000,
-        color: 'success',
+        color: "success",
       });
     } catch (error) {
       console.error("Error canceling the request:", error);
       presentToast({
-        message: 'Error canceling the request.',
+        message: "Erro ao cancelar o pedido.",
         duration: 3000,
-        color: 'danger',
+        color: "danger",
       });
     }
   };
@@ -96,7 +110,6 @@ export const usePerfilLogic = (presentToast: any) => {
     return "primary";
   };
 
-  // 5. Retorno do Hook
   return {
     user,
     myRequests,
@@ -104,6 +117,6 @@ export const usePerfilLogic = (presentToast: any) => {
     loading,
     handleLogout,
     handleCancelRequest,
-    getStatusColor
+    getStatusColor,
   };
 };

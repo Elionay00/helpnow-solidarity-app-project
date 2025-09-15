@@ -33,8 +33,8 @@ import {
 } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 
-// Importações do Firebase
-import { db, auth } from '../../firebase/firebaseConfig';
+// Importações do Firebase (LINHA CORRIGIDA)
+import { firestore as db, auth } from "../../firebase/firebaseConfig";
 import { collection, addDoc } from 'firebase/firestore';
 
 // --- Constantes para validação e mensagens ---

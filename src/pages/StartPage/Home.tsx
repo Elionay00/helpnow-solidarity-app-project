@@ -33,8 +33,7 @@ import {
 
 // ✅ Importação correta para Swiper v9.4.1
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, EffectFade } from "swiper";
-
+import { Autoplay, Pagination, EffectFade } from "swiper"; // LINHA CORRIGIDA
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
