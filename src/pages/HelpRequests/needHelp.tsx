@@ -27,10 +27,10 @@ const NeedHelp: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
   
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [urgency, setUrgency] = useState('media');
+  const [titulo, setTitulo] = useState(''); // Renomeado
+  const [descricao, setDescricao] = useState(''); // Renomeado
+  const [categoria, setCategoria] = useState(''); // Renomeado
+  const [urgencia, setUrgencia] = useState('media'); // Renomeado
   const [photo, setPhoto] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -50,7 +50,7 @@ const NeedHelp: React.FC = () => {
       return;
     }
 
-    if (!title || !description || !category) {
+    if (!titulo || !descricao || !categoria) {
       present({ message: 'Por favor, preencha todos os campos obrigatórios.', duration: 3000, color: 'warning' });
       return;
     }
@@ -60,16 +60,17 @@ const NeedHelp: React.FC = () => {
     try {
       let photoURL = '';
       if (photo) {
-        const photoRef = ref(storage, `helpRequests/${user.uid}/${Date.now()}_${photo.name}`);
+        const photoRef = ref(storage, `pedidosDeAjuda/${user.uid}/${Date.now()}_${photo.name}`);
         const snapshot = await uploadBytes(photoRef, photo);
         photoURL = await getDownloadURL(snapshot.ref);
       }
-
-      await addDoc(collection(firestore, 'helpRequests'), {
-        title,
-        description,
-        category,
-        urgency,
+      
+      // CORREÇÃO APLICADA AQUI nos nomes dos campos
+      await addDoc(collection(firestore, 'pedidosDeAjuda'), {
+        titulo,
+        descricao,
+        categoria,
+        urgencia,
         photoURL,
         requesterId: user.uid,
         requesterName: user.displayName || 'Anônimo',
@@ -94,7 +95,7 @@ const NeedHelp: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/home" />
+            <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
           <IonTitle>Pedir Ajuda</IonTitle>
         </IonToolbar>
@@ -102,10 +103,10 @@ const NeedHelp: React.FC = () => {
       <IonContent className="ion-padding">
         <form onSubmit={handleSubmit}>
           <IonList>
-            <IonItem><IonLabel position="floating">Título do Pedido</IonLabel><IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} required /></IonItem>
-            <IonItem><IonLabel position="floating">Descreva sua necessidade</IonLabel><IonTextarea value={description} onIonChange={e => setDescription(e.detail.value!)} rows={5} required /></IonItem>
-            <IonItem><IonLabel>Categoria</IonLabel><IonSelect value={category} placeholder="Selecione uma" onIonChange={e => setCategory(e.detail.value)} required><IonSelectOption value="alimentacao">Alimentação</IonSelectOption><IonSelectOption value="moradia">Moradia</IonSelectOption><IonSelectOption value="saude">Saúde</IonSelectOption><IonSelectOption value="educacao">Educação</IonSelectOption><IonSelectOption value="transporte">Transporte</IonSelectOption><IonSelectOption value="outros">Outros</IonSelectOption></IonSelect></IonItem>
-            <IonItem><IonLabel>Nível de Urgência</IonLabel><IonSelect value={urgency} onIonChange={e => setUrgency(e.detail.value)}><IonSelectOption value="baixa">Baixa</IonSelectOption><IonSelectOption value="media">Média</IonSelectOption><IonSelectOption value="alta">Alta</IonSelectOption></IonSelect></IonItem>
+            <IonItem><IonLabel position="floating">Título do Pedido</IonLabel><IonInput value={titulo} onIonChange={e => setTitulo(e.detail.value!)} required /></IonItem>
+            <IonItem><IonLabel position="floating">Descreva sua necessidade</IonLabel><IonTextarea value={descricao} onIonChange={e => setDescricao(e.detail.value!)} rows={5} required /></IonItem>
+            <IonItem><IonLabel>Categoria</IonLabel><IonSelect value={categoria} placeholder="Selecione uma" onIonChange={e => setCategoria(e.detail.value)} required><IonSelectOption value="alimentacao">Alimentação</IonSelectOption><IonSelectOption value="moradia">Moradia</IonSelectOption><IonSelectOption value="saude">Saúde</IonSelectOption><IonSelectOption value="educacao">Educação</IonSelectOption><IonSelectOption value="transporte">Transporte</IonSelectOption><IonSelectOption value="outros">Outros</IonSelectOption></IonSelect></IonItem>
+            <IonItem><IonLabel>Nível de Urgência</IonLabel><IonSelect value={urgencia} onIonChange={e => setUrgencia(e.detail.value)}><IonSelectOption value="baixa">Baixa</IonSelectOption><IonSelectOption value="media">Média</IonSelectOption><IonSelectOption value="alta">Alta</IonSelectOption></IonSelect></IonItem>
             <IonItem><IonLabel>Foto (Opcional)</IonLabel><input type="file" accept="image/*" onChange={handlePhotoChange} style={{ marginTop: '10px' }} /></IonItem>
           </IonList>
           <IonButton type="submit" expand="block" className="ion-margin-top" disabled={isSubmitting}>{isSubmitting ? <IonSpinner name="crescent" /> : 'Enviar Pedido'}</IonButton>

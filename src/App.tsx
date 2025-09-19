@@ -1,3 +1,5 @@
+// src/App.tsx
+
 import React, { Suspense, useState, useEffect } from "react";
 import {
   IonApp,
@@ -13,12 +15,12 @@ import {
   IonContent,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { Redirect, Route } from "react-router-dom";
+import { Redirect, Route, RouteProps } from "react-router-dom";
 import { homeOutline, mapOutline, personCircleOutline } from "ionicons/icons";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebaseConfig";
 
-/* CSS Imports */
+/* --- Importações de CSS --- */
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
 import "@ionic/react/css/structure.css";
@@ -31,7 +33,7 @@ import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 
-/* Lazy Imports */
+/* --- Lazy Imports das Páginas --- */
 const Login = React.lazy(() => import("./Autentication/userLogin/interactionUser/LoginPresentation"));
 const Register = React.lazy(() => import("./Autentication/userRegister/interactionUser/RegisterPresentation"));
 const WelcomePresentation = React.lazy(() => import("./pages/welcome/WelcomePresentation"));
@@ -49,81 +51,61 @@ const DoarAfiliado = React.lazy(() => import("./pages/doar-afiliado/doar-afiliad
 
 setupIonicReact();
 
-/* SplashScreen centralizado */
+/* --- Componente de SplashScreen (Tela de Carregamento) --- */
 const SplashScreen: React.FC = () => (
-  <IonPage>
-    <IonContent fullscreen>
-      <div
-        style={{
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <IonSpinner name="crescent" />
-      </div>
-    </IonContent>
-  </IonPage>
+    <IonPage>
+        <IonContent fullscreen style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <IonSpinner name="crescent" />
+        </IonContent>
+    </IonPage>
 );
 
-const AppRoutes: React.FC<{ userAuthenticated: boolean | null }> = ({ userAuthenticated }) => {
-  if (userAuthenticated === null) {
-    return <SplashScreen />;
-  }
-
+/* --- Componente de Rota Privada para proteger páginas --- */
+interface PrivateRouteProps extends RouteProps {
+  userAuthenticated: boolean | null;
+}
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ component: Component, userAuthenticated, ...rest }) => {
+  if (!Component) return null;
   return (
-    <Suspense fallback={<SplashScreen />}>
-      <IonRouterOutlet>
-        {/* Tela inicial */}
-        <Route path="/" exact>
-          {userAuthenticated ? <Redirect to="/home" /> : <WelcomePresentation />}
-        </Route>
-
-        {/* Rotas públicas */}
-        <Route path="/register" component={Register} exact />
-        <Route path="/login" component={Login} exact />
-        <Route path="/logout" component={LogoutScreen} exact />
-
-        {/* Rotas protegidas (sem abas) */}
-        <Route path="/preciso-de-ajuda" component={NeedHelp} exact />
-        <Route path="/quero-ajudar" component={WantToSupport} exact />
-        <Route path="/GoodDeedsForm" component={GoodDeedsForm} exact />
-        <Route path="/pedido/:id" component={RequestDetailsPage} />
-        <Route path="/premium-features" component={PremiumFeatures} exact />
-        <Route path="/doar-afiliado" component={DoarAfiliado} exact />
-
-        {/* Rotas das abas (se o usuário estiver autenticado) */}
-        {userAuthenticated && (
-          <Route path={["/home", "/mapa", "/perfil"]}>
-            <IonTabs>
-              <IonRouterOutlet>
-                <Route path="/home" component={Home} exact />
-                <Route path="/mapa" component={MapPage} exact />
-                <Route path="/perfil" component={ProfilePage} exact />
-              </IonRouterOutlet>
-              <IonTabBar slot="bottom">
-                <IonTabButton tab="home" href="/home">
-                  <IonIcon icon={homeOutline} />
-                  <IonLabel>Home</IonLabel>
-                </IonTabButton>
-                <IonTabButton tab="map" href="/mapa">
-                  <IonIcon icon={mapOutline} />
-                  <IonLabel>Mapa</IonLabel>
-                </IonTabButton>
-                <IonTabButton tab="profile" href="/perfil">
-                  <IonIcon icon={personCircleOutline} />
-                  <IonLabel>Perfil</IonLabel>
-                </IonTabButton>
-              </IonTabBar>
-            </IonTabs>
-          </Route>
-        )}
-      </IonRouterOutlet>
-    </Suspense>
+    <Route
+      {...rest}
+      render={(props) => userAuthenticated ? <Component {...props} /> : <Redirect to="/login" />}
+    />
   );
 };
 
+/* --- Componente que define o Layout com as Abas de Navegação --- */
+const TabsLayout: React.FC = () => (
+  <IonTabs>
+    {/* Este IonRouterOutlet só gerencia as páginas DAS ABAS */}
+    <IonRouterOutlet>
+      <Route path="/tabs/home" component={Home} exact={true} />
+      <Route path="/tabs/mapa" component={MapPage} exact={true} />
+      <Route path="/tabs/perfil" component={ProfilePage} exact={true} />
+      <Route path="/tabs" exact={true}>
+        <Redirect to="/tabs/home" />
+      </Route>
+    </IonRouterOutlet>
+
+    {/* A Barra de Abas Visual */}
+    <IonTabBar slot="bottom">
+      <IonTabButton tab="home" href="/tabs/home">
+        <IonIcon aria-hidden="true" icon={homeOutline} />
+        <IonLabel>Home</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab="map" href="/tabs/mapa">
+        <IonIcon aria-hidden="true" icon={mapOutline} />
+        <IonLabel>Mapa</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab="profile" href="/tabs/perfil">
+        <IonIcon aria-hidden="true" icon={personCircleOutline} />
+        <IonLabel>Perfil</IonLabel>
+      </IonTabButton>
+    </IonTabBar>
+  </IonTabs>
+);
+
+/* --- Componente Principal da Aplicação --- */
 const App: React.FC = () => {
   const [userAuthenticated, setUserAuthenticated] = useState<boolean | null>(null);
 
@@ -134,10 +116,44 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  // Mostra o SplashScreen enquanto verifica a autenticação
+  if (userAuthenticated === null) {
+    return <IonApp><SplashScreen /></IonApp>;
+  }
+
   return (
     <IonApp>
       <IonReactRouter>
-        <AppRoutes userAuthenticated={userAuthenticated} />
+        <Suspense fallback={<SplashScreen />}>
+          {/* Este IonRouterOutlet gerencia TODAS as páginas */}
+          <IonRouterOutlet>
+            {/* --- Rotas Públicas (NÃO TÊM ABAS) --- */}
+            <Route path="/welcome" component={WelcomePresentation} exact />
+            <Route path="/register" component={Register} exact />
+            <Route path="/login" component={Login} exact />
+            <Route path="/logout" component={LogoutScreen} exact />
+
+            {/* --- Rotas Privadas de Tela Cheia (NÃO TÊM ABAS) --- */}
+            <PrivateRoute path="/feed" component={Feed} userAuthenticated={userAuthenticated} exact />
+            <PrivateRoute path="/preciso-de-ajuda" component={NeedHelp} userAuthenticated={userAuthenticated} exact />
+            <PrivateRoute path="/quero-ajudar" component={WantToSupport} userAuthenticated={userAuthenticated} exact />
+            <PrivateRoute path="/GoodDeedsForm" component={GoodDeedsForm} userAuthenticated={userAuthenticated} exact />
+            <PrivateRoute path="/pedido/:id" component={RequestDetailsPage} userAuthenticated={userAuthenticated} />
+            <PrivateRoute path="/premium-features" component={PremiumFeatures} userAuthenticated={userAuthenticated} exact />
+            <PrivateRoute path="/doar-afiliado" component={DoarAfiliado} userAuthenticated={userAuthenticated} exact />
+           
+            <PrivateRoute 
+              path="/tabs" 
+              component={TabsLayout} 
+              userAuthenticated={userAuthenticated} 
+            />
+
+            {/* --- Redirecionamento Inicial --- */}
+            <Route path="/" exact>
+              {userAuthenticated ? <Redirect to="/tabs/home" /> : <Redirect to="/welcome" />}
+            </Route>
+          </IonRouterOutlet>
+        </Suspense>
       </IonReactRouter>
     </IonApp>
   );

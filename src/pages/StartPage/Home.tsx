@@ -1,3 +1,5 @@
+// src/pages/StartPage/Home.tsx
+
 import React, { useState } from "react";
 import {
   IonContent,
@@ -31,9 +33,8 @@ import {
   giftOutline,
 } from "ionicons/icons";
 
-// ✅ Importação correta para Swiper v9.4.1
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, EffectFade } from "swiper"; // LINHA CORRIGIDA
+import { Autoplay, Pagination, EffectFade } from "swiper/modules"; 
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
@@ -65,7 +66,7 @@ const Home: React.FC = () => {
   const goToProfile = () => {
     setPopoverEvent(undefined);
     setTimeout(() => {
-      history.push("/perfil");
+      history.push("/tabs/perfil"); // Corrigido para a nova rota de abas
     }, 300);
   };
 
@@ -113,7 +114,7 @@ const Home: React.FC = () => {
             }}
           />
           <IonButtons slot="end">
-            <IonButton onClick={() => goTo("/home")} title="Home">
+            <IonButton onClick={() => history.push('/tabs/home')} title="Home">
               <IonIcon icon={homeOutline} />
             </IonButton>
             <IonButton
@@ -270,7 +271,7 @@ const Home: React.FC = () => {
         </IonButton>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={() => goTo("/mapa")} color="tertiary" title="Ver no Mapa">
+          <IonFabButton onClick={() => history.push('/tabs/mapa')} color="tertiary" title="Ver no Mapa">
             <IonIcon icon={mapOutline} />
           </IonFabButton>
         </IonFab>

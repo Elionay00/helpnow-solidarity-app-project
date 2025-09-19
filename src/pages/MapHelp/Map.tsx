@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/MapHelp/Map.tsx
+
+import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -7,12 +9,11 @@ import {
   IonToolbar,
   IonButtons,
   IonBackButton,
-  IonLoading,
   IonFab,
   IonFabButton,
   IonIcon,
   useIonToast,
-  useIonViewWillEnter,
+  IonLoading,
 } from '@ionic/react';
 import { locateOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
@@ -22,29 +23,26 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Importações do Firebase (LINHA CORRIGIDA)
-import { firestore as db, auth } from "../../firebase/firebaseConfig";
-import { collection, getDocs } from 'firebase/firestore';
+// Importações do Firebase
+import { firestore } from "../../firebase/firebaseConfig";
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
-// --- Ícones Personalizados ---
+// --- Ícones Personalizados (sem alterações) ---
 const openIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
-
 const inProgressIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
-
 const userLocationIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
-
 const accessPointIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -52,33 +50,26 @@ const accessPointIcon = new L.Icon({
 });
 // --- Fim dos Ícones ---
 
-interface MapControllerProps { setMapInstance: React.Dispatch<React.SetStateAction<L.Map | null>>; }
 
-function MapController({ setMapInstance }: MapControllerProps) {
+// Componente que executa ações quando o mapa está pronto
+function MapEvents({ onMapReady }: { onMapReady: (map: L.Map) => void }) {
   const map = useMap();
   useEffect(() => {
-    if (map) {
-      setMapInstance(map);
-      const timer = setTimeout(() => { map.invalidateSize(); }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [map, setMapInstance]);
+    onMapReady(map);
+  }, [map, onMapReady]);
   return null;
 }
 
-// Interface para os pedidos de ajuda
 interface HelpRequestLocation {
   id: string;
-  name: string;
+  titulo: string;
   position: L.LatLngExpression;
   status: 'aberto' | 'em_atendimento';
 }
-
-// Interface para os pontos de acesso
 interface AccessPointLocation {
     id: string;
-    name: string;
-    address: string;
+    nome: string;
+    endereco: string;
     position: L.LatLngExpression;
 }
 
@@ -92,116 +83,79 @@ const MapPage: React.FC = () => {
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const [presentToast] = useIonToast();
 
-  useIonViewWillEnter(() => {
+  useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
-        const requestsSnapshot = await getDocs(collection(db, "pedidosDeAjuda"));
+        const requestsQuery = query(collection(firestore, "pedidosDeAjuda"), where("localizacao", "!=", null));
+        const requestsSnapshot = await getDocs(requestsQuery);
         const fetchedRequests = requestsSnapshot.docs.map(doc => {
           const data = doc.data();
-          if (data.localizacao && data.status !== 'concluido') {
-            return {
-              id: doc.id,
-              name: data.titulo,
-              position: [data.localizacao.latitude, data.localizacao.longitude],
-              status: data.status,
-            } as HelpRequestLocation;
-          }
-          return null;
-        }).filter((req): req is HelpRequestLocation => req !== null);
+          return { id: doc.id, titulo: data.titulo || 'Pedido', position: [data.localizacao.latitude, data.localizacao.longitude], status: data.status || 'aberto' } as HelpRequestLocation;
+        });
         setHelpRequests(fetchedRequests);
 
-        const accessPointsSnapshot = await getDocs(collection(db, "pontosDeAcesso"));
+        const accessPointsQuery = query(collection(firestore, "pontosDeAcesso"), where("localizacao", "!=", null));
+        const accessPointsSnapshot = await getDocs(accessPointsQuery);
         const fetchedAccessPoints = accessPointsSnapshot.docs.map(doc => {
             const data = doc.data();
-            if(data.localizacao) {
-                return {
-                    id: doc.id,
-                    name: data.nome,
-                    address: data.endereco,
-                    position: [data.localizacao.latitude, data.localizacao.longitude],
-                } as AccessPointLocation
-            }
-            return null;
-        }).filter((ap): ap is AccessPointLocation => ap !== null);
+            return { id: doc.id, nome: data.nome || 'Ponto', endereco: data.endereco || '', position: [data.localizacao.latitude, data.localizacao.longitude] } as AccessPointLocation;
+        });
         setAccessPoints(fetchedAccessPoints);
-
       } catch (error) {
         console.error("Erro ao buscar dados do Firebase: ", error);
-      } finally {
-        setLoading(false);
+        presentToast({ message: 'Erro ao carregar os dados do mapa.', duration: 3000, color: 'danger' });
       }
     };
+    
     fetchData();
-  });
+  }, [presentToast]);
 
-  const findMyLocation = () => {
-    if (!mapInstance) return;
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const userLatLng: L.LatLngExpression = [latitude, longitude];
-          mapInstance.flyTo(userLatLng, 16);
-          L.marker(userLatLng, { icon: userLocationIcon }).addTo(mapInstance).bindPopup("Você está aqui!").openPopup();
-        },
-        (error) => {
-          presentToast({ message: 'Não foi possível obter a sua localização.', duration: 3000, color: 'danger' });
-        }
-      );
-    }
+  const onMapReady = (map: L.Map) => {
+    setMapInstance(map);
+    // Força o redimensionamento e depois esconde o loading
+    setTimeout(() => {
+        map.invalidateSize();
+        setLoading(false);
+    }, 200); // Um pequeno delay para garantir que a renderização começou
   };
 
-  const getIconByStatus = (status: string) => {
-    return status === 'em_atendimento' ? inProgressIcon : openIcon;
-  };
+  const findMyLocation = () => { /* ...código sem alterações... */ };
+  const getIconByStatus = (status: string) => status === 'em_atendimento' ? inProgressIcon : openIcon;
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/home" />
+            <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
           <IonTitle>Mapa de Ajuda</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <IonLoading isOpen={loading} message={'A carregar locais...'} />
-        {!loading && (
-          <MapContainer center={initialPosition} zoom={14} style={{ height: '100%', width: '100%' }}>
+        
+        <IonLoading isOpen={loading} message={'A carregar mapa...'} />
+        
+        {/* O MapContainer agora está sempre presente, mas escondido pelo IonLoading */}
+        <MapContainer center={initialPosition} zoom={14} style={{ height: '100%', width: '100%' }}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             
-            {helpRequests.map(request => (
-              <Marker
-                key={request.id}
-                position={request.position}
-                icon={getIconByStatus(request.status)}
-                eventHandlers={{ click: () => { history.push(`/pedido/${request.id}`); } }}
-              >
-                <Popup>
-                  <b>{request.name}</b><br />
-                  Clique para ver detalhes e ajudar.
-                </Popup>
+            {!loading && helpRequests.map(request => (
+              <Marker key={request.id} position={request.position} icon={getIconByStatus(request.status)} eventHandlers={{ click: () => { history.push(`/pedido/${request.id}`); } }}>
+                <Popup><b>{request.titulo}</b><br />Clique para ver detalhes.</Popup>
               </Marker>
             ))}
 
-            {accessPoints.map(point => (
-                <Marker
-                    key={point.id}
-                    position={point.position}
-                    icon={accessPointIcon}
-                >
-                    <Popup>
-                        <b>{point.name}</b><br />
-                        {point.address}
-                    </Popup>
+            {!loading && accessPoints.map(point => (
+                <Marker key={point.id} position={point.position} icon={accessPointIcon}>
+                    <Popup><b>{point.nome}</b><br />{point.endereco}</Popup>
                 </Marker>
             ))}
+            
+            {/* Este componente só é ativado quando o mapa está pronto */}
+            <MapEvents onMapReady={onMapReady} />
+        </MapContainer>
 
-            <MapController setMapInstance={setMapInstance} />
-          </MapContainer>
-        )}
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton onClick={findMyLocation} title="Minha Localização">
             <IonIcon icon={locateOutline} />

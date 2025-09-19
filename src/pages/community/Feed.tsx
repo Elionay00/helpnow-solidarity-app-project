@@ -22,12 +22,13 @@ import { firestore } from '../../firebase/firebaseConfig';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import './Feed.css';
 
+// CORREÇÃO APLICADA AQUI na interface
 interface HelpRequest {
   id: string;
-  title: string;
-  description: string;
-  category: string;
-  urgency: 'baixa' | 'media' | 'alta';
+  titulo: string;
+  descricao: string;
+  categoria: string;
+  urgencia: 'baixa' | 'media' | 'alta';
   photoURL?: string;
   requesterName: string;
   createdAt: any;
@@ -40,7 +41,7 @@ const Feed: React.FC = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const requestsCollection = collection(firestore, 'helpRequests');
+        const requestsCollection = collection(firestore, 'pedidosDeAjuda');
         const q = query(requestsCollection, orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
         const requestsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as HelpRequest[];
@@ -60,7 +61,7 @@ const Feed: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start"><IonBackButton defaultHref="/home" /></IonButtons>
+          <IonButtons slot="start"><IonBackButton defaultHref="/tabs/home" /></IonButtons>
           <IonTitle>Feed da Comunidade</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -69,17 +70,18 @@ const Feed: React.FC = () => {
           <div className="spinner-container"><IonSpinner name="crescent" /></div>
         ) : (
           <IonList>
+            {/* CORREÇÃO APLICADA AQUI para ler os campos corretos */}
             {requests.map(request => (
-              <IonCard key={request.id} className="request-card">
+              <IonCard key={request.id} className="request-card" routerLink={`/pedido/${request.id}`}>
                 {request.photoURL && <IonImg src={request.photoURL} className="card-image" />}
                 <IonCardHeader>
-                  <IonCardSubtitle>{request.category}</IonCardSubtitle>
-                  <IonCardTitle>{request.title}</IonCardTitle>
+                  <IonCardSubtitle>{request.categoria}</IonCardSubtitle>
+                  <IonCardTitle>{request.titulo}</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  <p>{request.description}</p>
+                  <p>{request.descricao}</p>
                   <div className="card-footer">
-                    <IonChip color={getUrgencyColor(request.urgency)}><IonLabel>Urgência {request.urgency}</IonLabel></IonChip>
+                    <IonChip color={getUrgencyColor(request.urgencia)}><IonLabel>Urgência {request.urgencia}</IonLabel></IonChip>
                     <span>por {request.requesterName}</span>
                   </div>
                 </IonCardContent>

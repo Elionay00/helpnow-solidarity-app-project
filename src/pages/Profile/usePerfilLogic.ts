@@ -20,18 +20,17 @@ export interface Request {
 }
 
 export const usePerfilLogic = (presentToast: any) => {
-  // CORREÇÃO: Iniciar o usuário como 'null' e deixar o useEffect cuidar da verificação.
   const [user, setUser] = useState<User | null>(null);
   const [myRequests, setMyRequests] = useState<Request[]>([]);
   const [myHelps, setMyHelps] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async (uid: string) => {
-    // Não precisa de setLoading(true) aqui, pois o estado geral já controla isso
     try {
+      // CORREÇÃO APLICADA AQUI
       const requestsQuery = query(
-        collection(db, "helpRequests"),
-        where("userId", "==", uid),
+        collection(db, "pedidosDeAjuda"),
+        where("requesterId", "==", uid), // Corrigido para requesterId
         orderBy("createdAt", "desc")
       );
       const requestsSnapshot = await getDocs(requestsQuery);
@@ -40,9 +39,10 @@ export const usePerfilLogic = (presentToast: any) => {
           (doc) => ({ id: doc.id, ...doc.data() } as Request)
         )
       );
-
+      
+      // CORREÇÃO APLICADA AQUI
       const helpsQuery = query(
-        collection(db, "helpRequests"),
+        collection(db, "pedidosDeAjuda"),
         where("helperId", "==", uid),
         orderBy("createdAt", "desc")
       );
@@ -70,23 +70,22 @@ export const usePerfilLogic = (presentToast: any) => {
       if (currentUser) {
         fetchData(currentUser.uid);
       } else {
-        // Se não houver usuário, paramos o loading e as listas ficam vazias.
         setLoading(false);
       }
     });
 
     return () => unsubscribe();
-  }, []); // A dependência vazia está correta aqui
+  }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
-    // O onAuthStateChanged vai detectar o logout e limpar o estado do usuário automaticamente
   };
 
   const handleCancelRequest = async (requestId: string) => {
     if (!requestId) return;
     try {
-      await deleteDoc(doc(db, "helpRequests", requestId));
+      // CORREÇÃO APLICADA AQUI
+      await deleteDoc(doc(db, "pedidosDeAjuda", requestId));
       setMyRequests((prev) => prev.filter((p) => p.id !== requestId));
       presentToast({
         message: "Pedido cancelado com sucesso!",
