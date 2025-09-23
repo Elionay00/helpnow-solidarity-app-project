@@ -1,2 +1,57 @@
-/* For information on how to create your own theme, please see:
-http://ionicframework.com/docs/theming/ */
+/* Definindo as cores do design para reutilização */
+:root {
+  --app-primary-color: #6C63FF;
+  --app-text-dark: #333;
+  --app-text-light: #888;
+  --app-border-color: #c7c7c7;
+  --app-background-color: #ffffff;
+
+  /* Aplicando a fonte Poppins globalmente */
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Aplicando a fonte ao body para garantir */
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--app-text-dark);
+}
+
+/* Estilo do Input customizado */
+.custom-input-item {
+  --background: var(--app-background-color);
+  --border-radius: 8px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --inner-padding-end: 0;
+  --inner-padding-start: 0;
+  --min-height: 55px;
+  border: 1px solid var(--app-border-color);
+  box-shadow: none;
+  transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+  margin-bottom: 20px;
+}
+
+/* Estilo do Input quando está focado (ativo) */
+.custom-input-item.item-has-focus {
+  border-color: var(--app-primary-color);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.25);
+}
+
+/* Ajustes internos do componente IonInput */
+.custom-input-item ion-input {
+  --padding-start: 10px;
+  --placeholder-color: var(--app-text-light);
+  color: var(--app-text-dark);
+  font-size: 1em;
+}
+
+/* Ajuste para o ícone do input */
+.custom-input-item ion-icon {
+  color: var(--app-text-light);
+  margin-right: 5px;
+}
+
+/* Ajuste para o botão de mostrar/ocultar senha */
+.password-toggle-button {
+  --padding-end: 0;
+}

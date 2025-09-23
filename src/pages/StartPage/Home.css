@@ -1,0 +1,24 @@
+.slides-home {
+  height: 150px;
+  margin-bottom: 20px;
+}
+
+.slides-home h2 {
+  font-weight: bold;
+  color: #222;
+}
+
+.slides-home p {
+  color: #555;
+}
+
+/* Para telas com largura máxima de 600px (tamanho de celular) */
+@media (max-width: 600px) {
+  .swiper-slide-content h2 {
+    font-size: 1.5rem; /* Diminui o tamanho da fonte do título do carrossel */
+  }
+
+  .swiper-slide-content p {
+    font-size: 1rem; /* Diminui o tamanho do texto do parágrafo */
+  }
+}
