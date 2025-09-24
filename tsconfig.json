@@ -1,19 +1,13 @@
+// Arquivo: D:/helpnow-solidarity-app-project/tsconfig.json
+
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
+    // ... o resto do seu arquivo continua igual
     "jsx": "react-jsx"
   },
   "include": ["src"],

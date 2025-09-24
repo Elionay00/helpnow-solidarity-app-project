@@ -1,0 +1,1 @@
+export const saudacao: string = "Dados do pacote compartilhado!";
