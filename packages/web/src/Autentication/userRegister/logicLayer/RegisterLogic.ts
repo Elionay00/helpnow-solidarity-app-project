@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
-import { useIonToast } from "@ionic/react";
+import { useIonToast, IonInput } from "@ionic/react";
+import { FirebaseError } from "firebase/app";
 import IMask from "imask";
 import { registerSchema } from "../../../utils/validationSchemas";
 import { ValidationError } from "yup";
@@ -13,10 +14,10 @@ function useRegisterLogic() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const cpfInputRef = useRef<any>(null);
-  const telInputRef = useRef<any>(null);
-  const cpfMaskRef = useRef<any>(null);
-  const telMaskRef = useRef<any>(null);
+  const cpfInputRef = useRef<IonInput | null>(null);
+  const telInputRef = useRef<IonInput | null>(null);
+  const cpfMaskRef = useRef<IMask.Masked | null>(null);
+  const telMaskRef = useRef<IMask.Masked | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -72,7 +73,7 @@ function useRegisterLogic() {
       showToast("Cadastro realizado com sucesso!", "success");
       history.push("/home");
 
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof ValidationError) {
         const newErrors: Record<string, string> = {};
         error.inner.forEach((err) => {
@@ -86,16 +87,18 @@ function useRegisterLogic() {
       }
 
       let errorMessage = "Erro ao cadastrar. Tente novamente.";
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          errorMessage = "Este email já está em uso.";
-          break;
-        case "auth/invalid-email":
-          errorMessage = "Email inválido.";
-          break;
-        case "auth/weak-password":
-          errorMessage = "Senha fraca. Escolha uma mais segura.";
-          break;
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            errorMessage = "Este email já está em uso.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "Email inválido.";
+            break;
+          case "auth/weak-password":
+            errorMessage = "Senha fraca. Escolha uma mais segura.";
+            break;
+        }
       }
       showToast(errorMessage);
     }

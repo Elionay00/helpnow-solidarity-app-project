@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonItem, IonLabel, IonInput, IonIcon, InputChangeEventDetail, IonText } from '@ionic/react';
+import { IonItem, IonLabel, IonInput, IonIcon, InputChangeEventDetail } from '@ionic/react';
 
 // Definindo as Props para o componente ValidatedInput
 interface ValidatedInputProps {

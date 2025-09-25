@@ -2,7 +2,7 @@
 export class ApiService {
   private static apiUrl = 'http://localhost:3000/api';
 
-  public static async createPaymentSession(data: any) {
+  public static async createPaymentSession(data: Record<string, unknown>) {
     const response = await fetch(`${this.apiUrl}/checkout`, {
       method: 'POST',
       headers: {

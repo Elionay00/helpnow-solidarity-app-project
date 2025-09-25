@@ -1,6 +1,6 @@
 // src/pages/MapHelp/Map.tsx
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -38,11 +38,7 @@ const inProgressIcon = new L.Icon({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
-const userLocationIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
-});
+
 const accessPointIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -80,7 +76,7 @@ const MapPage: React.FC = () => {
   const [helpRequests, setHelpRequests] = useState<HelpRequestLocation[]>([]);
   const [accessPoints, setAccessPoints] = useState<AccessPointLocation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+
   const [presentToast] = useIonToast();
 
   useEffect(() => {
@@ -111,7 +107,6 @@ const MapPage: React.FC = () => {
   }, [presentToast]);
 
   const onMapReady = (map: L.Map) => {
-    setMapInstance(map);
     // Força o redimensionamento e depois esconde o loading
     setTimeout(() => {
         map.invalidateSize();

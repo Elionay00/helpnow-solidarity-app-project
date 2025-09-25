@@ -1,228 +1,175 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import type { DocumentData } from 'firebase/firestore';
+import { firestore, auth } from '../../firebase/firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+import type { User } from 'firebase/auth';
 import {
-  IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
+  IonHeader,
   IonToolbar,
-  IonButtons,
-  IonBackButton,
+  IonTitle,
+  IonContent,
+  IonButton,
   IonLoading,
   IonCard,
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonButton,
-  IonIcon,
+  IonButtons,
+  IonBackButton,
   useIonToast,
-  IonAlert,
-} from "@ionic/react";
-import { useParams, useHistory } from "react-router-dom";
-import {
-  checkmarkCircleOutline,
-  closeCircleOutline,
-  hourglassOutline,
-  shieldCheckmarkOutline,
-} from "ionicons/icons";
+  IonIcon,
+} from '@ionic/react';
+import { chatbubblesOutline } from 'ionicons/icons';
+// import './OrderDetailsPage.css'; // Certifique-se de que o CSS está correto
 
-// Importações do Firebase
-import { firestore as db, auth } from "../../firebase/firebaseConfig";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore"; // onSnapshot é para ouvir em tempo real
-
-// Interface (em inglês) para a estrutura de um pedido de ajuda
-interface HelpRequest {
+interface Order extends DocumentData {
   id: string;
   titulo: string;
   descricao: string;
-  status: "aberto" | "em_atendimento" | "concluido";
-  userId: string; // ID de quem pediu
-  helperId?: string; // ID de quem está a ajudar (opcional)
+  status: 'pendente' | 'em atendimento' | 'concluido';
+  autorId: string;
+  ajudanteId?: string;
 }
 
-const RequestDetailsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Pega o ID do pedido a partir do URL
+const OrderDetailsPage = () => {
+  const { orderId } = useParams();
   const history = useHistory();
+  const [order, setOrder] = useState<Order | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [presentToast] = useIonToast();
 
-  // Variáveis de estado (em inglês)
-  const [request, setRequest] = useState<HelpRequest | null>(null); // Guarda os dados do pedido
-  const [loading, setLoading] = useState(true);
-  const [showAlert, setShowAlert] = useState(false); // Controla a exibição do alerta de confirmação
-
-  // useEffect com onSnapshot para buscar e ouvir as atualizações do pedido em tempo real
   useEffect(() => {
-    const docRef = doc(db, "pedidosDeAjuda", id); // Referência para o documento específico
-
-    // onSnapshot cria um "ouvinte" que é notificado sempre que o documento muda
-    const unsubscribe = onSnapshot(
-      docRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          setRequest({ id: docSnap.id, ...docSnap.data() } as HelpRequest);
-        } else {
-          presentToast({
-            message: "Pedido não encontrado.",
-            duration: 3000,
-            color: "danger",
-          });
-          history.goBack();
-        }
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error listening to request:", error);
-        setLoading(false);
-      }
-    );
-
-    // Função de limpeza: para de ouvir quando o componente é desmontado para poupar recursos
-    return () => unsubscribe();
-  }, [id, history, presentToast]);
-
-  // Função para um utilizador se voluntariar para ajudar
-  const handleHelp = async () => {
-    if (!auth.currentUser) {
-      presentToast({
-        message: "Você precisa de estar logado para ajudar.",
-        duration: 3000,
-        color: "warning",
-      });
-      history.push("/login");
-      return;
-    }
-    if (request?.userId === auth.currentUser.uid) {
-      presentToast({
-        message: "Você não pode atender ao seu próprio pedido.",
-        duration: 3000,
-        color: "danger",
-      });
-      return;
-    }
-
-    // Atualiza o documento no Firebase
-    const docRef = doc(db, "pedidosDeAjuda", id);
-    await updateDoc(docRef, {
-      status: "em_atendimento",
-      helperId: auth.currentUser.uid, // Guarda o ID de quem está a ajudar
+    const authUnsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
     });
-    presentToast({
-      message: "Obrigado! Você está a ajudar neste pedido.",
-      duration: 3000,
-      color: "success",
-    });
-  };
 
-  // Função para marcar o pedido como concluído
-  const handleComplete = async () => {
-    setLoading(true);
-    try {
-      const docRef = doc(db, "pedidosDeAjuda", id);
-      await updateDoc(docRef, {
-        status: "concluido",
-      });
-      presentToast({
-        message: "Ajuda concluída com sucesso! Obrigado.",
-        duration: 3000,
-        color: "success",
-      });
-      history.push("/mapa"); // Volta para o mapa após concluir
-    } catch (error) {
-      console.error("Error completing request:", error);
-    } finally {
+    if (!orderId) {
       setLoading(false);
+      presentToast({ message: 'ID do pedido não encontrado.', duration: 3000, color: 'danger' });
+      history.goBack();
+      return;
+    }
+
+    const docRef = doc(firestore, 'pedidosDeAjuda', orderId);
+    const orderUnsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setOrder({ id: docSnap.id, ...docSnap.data() } as Order);
+      } else {
+        presentToast({ message: 'Pedido não encontrado.', duration: 3000, color: 'danger' });
+        history.goBack();
+      }
+      setLoading(false);
+    }, (error) => {
+      console.error("Erro ao buscar pedido:", error);
+      presentToast({ message: 'Erro ao carregar o pedido.', duration: 3000, color: 'danger' });
+      setLoading(false);
+    });
+
+    return () => {
+      authUnsubscribe();
+      orderUnsubscribe();
+    };
+  }, [orderId, history, presentToast]);
+
+  const handleOpenChat = () => {
+    if (orderId) {
+      history.push(`/chat/${orderId}`);
     }
   };
 
-  const currentUser = auth.currentUser;
+  const permissions = useMemo(() => {
+    if (!user || !order) return {};
+    const isOwner = order.autorId === user.uid;
+    const isHelper = order.ajudanteId === user.uid;
+    const isAssigned = !!order.ajudanteId;
+
+    return {
+      canAccept: !isOwner && !isAssigned && order.status === 'pendente',
+      canComplete: isAssigned && (isOwner || isHelper) && order.status === 'em atendimento',
+      canDelete: isOwner && order.status === 'pendente',
+      canOpenChat: isAssigned && (isOwner || isHelper) && order.status === 'em atendimento',
+    };
+  }, [user, order]);
+
+  const handleAcceptOrder = async () => {
+            if (!orderId || !user) return;
+            const orderRef = doc(firestore, 'pedidosDeAjuda', orderId);    try {
+      await updateDoc(orderRef, {
+        ajudanteId: user.uid,
+        status: 'em atendimento'
+      });
+      presentToast({ message: 'Você aceitou o pedido! Obrigado por ajudar.', duration: 3000, color: 'success' });
+    } catch {
+      presentToast({ message: 'Erro ao aceitar o pedido.', duration: 3000, color: 'danger' });
+    }
+  };
+
+  const handleCompleteOrder = async () => {
+    if (!orderId) return;
+    const orderRef = doc(firestore, 'pedidosDeAjuda', orderId);
+    try {
+      await updateDoc(orderRef, {
+        status: 'concluido'
+      });
+      presentToast({ message: 'Pedido concluído com sucesso!', duration: 3000, color: 'success' });
+    } catch {
+      presentToast({ message: 'Erro ao concluir o pedido.', duration: 3000, color: 'danger' });
+    }
+  };
+
+  const handleDeleteOrder = async () => {
+    // ... (sua lógica de exclusão)
+  };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/mapa" />
+            <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
           <IonTitle>Detalhes do Pedido</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
-        <IonLoading isOpen={loading} message={"A carregar..."} />
-        {request && (
-          <>
-            <IonCard>
-              <IonCardHeader>
-                <IonCardTitle>{request.titulo}</IonCardTitle>
-              </IonCardHeader>
-              <IonCardContent>
-                <p>{request.descricao}</p>
-                <div
-                  style={{
-                    marginTop: "20px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {request.status === "aberto" && (
-                    <IonIcon icon={checkmarkCircleOutline} color="success" />
-                  )}
-                  {request.status === "em_atendimento" && (
-                    <IonIcon icon={hourglassOutline} color="warning" />
-                  )}
-                  {request.status === "concluido" && (
-                    <IonIcon icon={shieldCheckmarkOutline} color="primary" />
-                  )}
-                  <span
-                    style={{ marginLeft: "10px", textTransform: "capitalize" }}
-                  >
-                    Status: {(request.status || "").replace("_", " ")}
-                  </span>
-                </div>
+        <IonLoading isOpen={loading} message={'A carregar...'} />
+        {order && (
+          <IonCard>
+            <IonCardHeader>
+              <IonCardTitle>{order.titulo}</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <p>{order.descricao}</p>
+              <p><strong>Status:</strong> {order.status}</p>
+              {order.ajudanteId && <p><strong>Ajudante:</strong> {order.ajudanteId}</p>}
 
-                {/* Botão "Quero Ajudar" só aparece se o pedido estiver aberto */}
-                {request.status === "aberto" && (
-                  <IonButton
-                    expand="block"
-                    onClick={handleHelp}
-                    className="ion-margin-top"
-                  >
-                    Eu quero ajudar!
+              <div className="ion-padding-top">
+                {permissions.canAccept && (
+                  <IonButton expand="block" onClick={handleAcceptOrder}>Aceitar Pedido</IonButton>
+                )}
+                {permissions.canComplete && (
+                  <IonButton expand="block" color="success" onClick={handleCompleteOrder}>Marcar como Concluído</IonButton>
+                )}
+                {permissions.canOpenChat && (
+                  <IonButton expand="block" fill="outline" onClick={handleOpenChat}>
+                    <IonIcon slot="start" icon={chatbubblesOutline}></IonIcon>
+                    Abrir Chat
                   </IonButton>
                 )}
-
-                {/* Botão "Marcar como Concluído" aparece para quem pediu E para quem está a ajudar */}
-                {request.status === "em_atendimento" &&
-                  (request.helperId === currentUser?.uid ||
-                    request.userId === currentUser?.uid) && (
-                    <IonButton
-                      expand="block"
-                      color="success"
-                      onClick={() => setShowAlert(true)}
-                      className="ion-margin-top"
-                    >
-                      <IonIcon icon={shieldCheckmarkOutline} slot="start" />
-                      Marcar como Concluído
-                    </IonButton>
-                  )}
-              </IonCardContent>
-            </IonCard>
-
-            <IonAlert
-              isOpen={showAlert}
-              onDidDismiss={() => setShowAlert(false)}
-              header={"Confirmar Ação"}
-              message={
-                "Tem a certeza que deseja marcar esta ajuda como concluída?"
-              }
-              buttons={[
-                { text: "Cancelar", role: "cancel" },
-                { text: "Sim, Concluir", handler: handleComplete },
-              ]}
-            />
-          </>
+                {permissions.canDelete && (
+                  <IonButton expand="block" color="danger" onClick={handleDeleteOrder}>Apagar Pedido</IonButton>
+                )}
+              </div>
+            </IonCardContent>
+          </IonCard>
         )}
       </IonContent>
     </IonPage>
   );
 };
 
-export default RequestDetailsPage;
+export default OrderDetailsPage;

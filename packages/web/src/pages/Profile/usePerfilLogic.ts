@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { type User } from "firebase/auth";
 import { firestore as db, auth } from "../../firebase/firebaseConfig";
 import {
@@ -16,17 +16,16 @@ export interface Request {
   id: string;
   title: string;
   status: "open" | "in_progress" | "completed";
-  // Adicione outras propriedades que seus documentos possam ter
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
-export const usePerfilLogic = (presentToast: any) => {
+export const usePerfilLogic = (presentToast: (options: { message: string; duration: number; color: string; }) => Promise<void>) => {
   const [user, setUser] = useState<User | null>(null);
   const [myRequests, setMyRequests] = useState<Request[]>([]);
   const [myHelps, setMyHelps] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async (uid: string) => {
+  const fetchData = useCallback(async (uid: string) => {
     try {
       // CORREÇÃO APLICADA AQUI
       const requestsQuery = query(
@@ -63,7 +62,7 @@ export const usePerfilLogic = (presentToast: any) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [presentToast]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -76,7 +75,7 @@ export const usePerfilLogic = (presentToast: any) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchData]);
 
   const handleLogout = async () => {
     await signOut(auth);

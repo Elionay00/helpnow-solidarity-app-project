@@ -19,10 +19,10 @@ import {
   IonLabel,
 } from '@ionic/react';
 import { firestore } from '../../firebase/firebaseConfig';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import './Feed.css';
 
-// CORREÇÃO APLICADA AQUI na interface
+// A interface foi ajustada para corresponder aos dados do Firestore.
 interface HelpRequest {
   id: string;
   titulo: string;
@@ -31,7 +31,7 @@ interface HelpRequest {
   urgencia: 'baixa' | 'media' | 'alta';
   photoURL?: string;
   requesterName: string;
-  createdAt: any;
+  createdAt: Timestamp;
 }
 
 const Feed: React.FC = () => {
@@ -70,7 +70,7 @@ const Feed: React.FC = () => {
           <div className="spinner-container"><IonSpinner name="crescent" /></div>
         ) : (
           <IonList>
-            {/* CORREÇÃO APLICADA AQUI para ler os campos corretos */}
+            {/* O mapeamento agora usa os campos corretos da interface. */}
             {requests.map(request => (
               <IonCard key={request.id} className="request-card" routerLink={`/pedido/${request.id}`}>
                 {request.photoURL && <IonImg src={request.photoURL} className="card-image" />}

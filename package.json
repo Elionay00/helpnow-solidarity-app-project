@@ -4,5 +4,8 @@
   "version": "1.0.0",
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "firebase": "^12.3.0"
+  }
 }

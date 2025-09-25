@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useIonToast } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import { FirebaseError } from 'firebase/app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../../firebase/firebaseConfig';
 
@@ -38,29 +39,30 @@ export function useLoginLogic() {
       await signInWithEmailAndPassword(auth, email, password);
       showToast('Login realizado com sucesso!', 'success');
       history.push('/home');
-    } catch (err: any) {
-      // ... (código de tratamento de erro continua o mesmo)
-      console.error('Erro ao fazer login:', err.code, err.message);
-      let errorMessage = 'Erro ao fazer login. Verifique seus dados e tente novamente.';
-      switch (err.code) {
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          errorMessage = 'Email ou senha inválidos. Por favor, verifique e tente novamente.';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'O formato do email é inválido. Digite um email válido.';
-          break;
-        case 'auth/user-disabled':
-          errorMessage = 'Sua conta foi desativada. Entre em contato com o suporte.';
-          break;
-        case 'auth/too-many-requests':
-          errorMessage = 'Muitas tentativas de login. Tente novamente mais tarde.';
-          break;
-        default:
-          errorMessage = `Ocorreu um erro: ${err.message}`;
-          break;
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        console.error('Erro ao fazer login:', err.code, err.message);
+        let errorMessage = 'Erro ao fazer login. Verifique seus dados e tente novamente.';
+        switch (err.code) {
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+            errorMessage = 'Email ou senha inválidos. Por favor, verifique e tente novamente.';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'O formato do email é inválido. Digite um email válido.';
+            break;
+          case 'auth/user-disabled':
+            errorMessage = 'Sua conta foi desativada. Entre em contato com o suporte.';
+            break;
+          case 'auth/too-many-requests':
+            errorMessage = 'Muitas tentativas de login. Tente novamente mais tarde.';
+            break;
+          default:
+            errorMessage = `Ocorreu um erro: ${err.message}`;
+            break;
+        }
+        setError(errorMessage);
       }
-      setError(errorMessage);
     } finally {
       setLoading(false);
     }
