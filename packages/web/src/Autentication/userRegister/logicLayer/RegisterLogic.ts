@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
-import { useIonToast, IonInput } from "@ionic/react";
+import { useIonToast, type IonInput } from "@ionic/react";
 import { FirebaseError } from "firebase/app";
 import IMask from "imask";
 import { registerSchema } from "../../../utils/validationSchemas";
@@ -50,11 +50,8 @@ function useRegisterLogic() {
   };
 
   const handleRegister = async () => {
-    const cpfRaw = await cpfInputRef.current?.getInputElement();
-    const telRaw = await telInputRef.current?.getInputElement();
-
-    const cpf = cpfRaw?.value.replace(/\D/g, "") || "";
-    const phone = telRaw?.value.replace(/\D/g, "") || "";
+    const cpf = cpfMaskRef.current?.unmaskedValue || "";
+    const phone = telMaskRef.current?.unmaskedValue || "";
 
     const formData = {
       fullName: fullName.trim(),

@@ -13,7 +13,6 @@ import {
   IonContent,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-// --- LINHA CORRIGIDA AQUI ---
 import { Route, Redirect, type RouteProps } from 'react-router-dom';
 import { homeOutline, mapOutline, personCircleOutline } from "ionicons/icons";
 import { onAuthStateChanged } from "firebase/auth";
