@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   IonPage, IonContent, IonInput, IonButton,
   IonText, IonItem, IonLabel, IonRouterLink, IonIcon

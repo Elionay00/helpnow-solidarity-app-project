@@ -1,6 +1,5 @@
 // src/pages/MapHelp/Map.tsx
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -14,12 +13,13 @@ import {
   IonIcon,
   useIonToast,
   IonLoading,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import { locateOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 
 // Importações do Leaflet
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -46,16 +46,6 @@ const accessPointIcon = new L.Icon({
 });
 // --- Fim dos Ícones ---
 
-
-// Componente que executa ações quando o mapa está pronto
-function MapEvents({ onMapReady }: { onMapReady: (map: L.Map) => void }) {
-  const map = useMap();
-  useEffect(() => {
-    onMapReady(map);
-  }, [map, onMapReady]);
-  return null;
-}
-
 interface HelpRequestLocation {
   id: string;
   titulo: string;
@@ -73,14 +63,23 @@ const MapPage: React.FC = () => {
   const history = useHistory();
   const initialPosition: L.LatLngExpression = [-1.295, -47.923];
   
+  const mapRef = useRef<L.Map>(null);
   const [helpRequests, setHelpRequests] = useState<HelpRequestLocation[]>([]);
   const [accessPoints, setAccessPoints] = useState<AccessPointLocation[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [presentToast] = useIonToast();
 
+  useIonViewDidEnter(() => {
+    // O mapa pode não estar pronto na primeira vez, mas o ref sim.
+    setTimeout(() => {
+      mapRef.current?.invalidateSize();
+    }, 200);
+  });
+
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const requestsQuery = query(collection(firestore, "pedidosDeAjuda"), where("localizacao", "!=", null));
         const requestsSnapshot = await getDocs(requestsQuery);
@@ -100,19 +99,13 @@ const MapPage: React.FC = () => {
       } catch (error) {
         console.error("Erro ao buscar dados do Firebase: ", error);
         presentToast({ message: 'Erro ao carregar os dados do mapa.', duration: 3000, color: 'danger' });
+      } finally {
+        setLoading(false);
       }
     };
     
     fetchData();
-  }, [presentToast]);
-
-  const onMapReady = (map: L.Map) => {
-    // Força o redimensionamento e depois esconde o loading
-    setTimeout(() => {
-        map.invalidateSize();
-        setLoading(false);
-    }, 200); // Um pequeno delay para garantir que a renderização começou
-  };
+  }, []);
 
   const findMyLocation = () => { /* ...código sem alterações... */ };
   const getIconByStatus = (status: string) => status === 'em_atendimento' ? inProgressIcon : openIcon;
@@ -131,8 +124,7 @@ const MapPage: React.FC = () => {
         
         <IonLoading isOpen={loading} message={'A carregar mapa...'} />
         
-        {/* O MapContainer agora está sempre presente, mas escondido pelo IonLoading */}
-        <MapContainer center={initialPosition} zoom={14} style={{ height: '100%', width: '100%' }}>
+        <MapContainer ref={mapRef} center={initialPosition} zoom={14} style={{ height: '100%', width: '100%' }}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             
             {!loading && helpRequests.map(request => (
@@ -147,8 +139,6 @@ const MapPage: React.FC = () => {
                 </Marker>
             ))}
             
-            {/* Este componente só é ativado quando o mapa está pronto */}
-            <MapEvents onMapReady={onMapReady} />
         </MapContainer>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">

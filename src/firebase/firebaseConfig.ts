@@ -5,8 +5,6 @@ import { getFirestore } from "firebase/firestore";
 
 // As suas credenciais de configuração do Firebase
 const firebaseConfig = {
-  // ... (o seu código de configuração aqui)
-  // Certifique-se de que todas as chaves estão aqui (apiKey, authDomain, etc.)
 };
 
 // Inicialize o Firebase

@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonItem, IonLabel, IonInput, IonIcon, InputChangeEventDetail } from '@ionic/react';
+import { IonItem, IonLabel, IonInput, IonIcon } from '@ionic/react';
 
 // Definindo as Props para o componente ValidatedInput
 interface ValidatedInputProps {
@@ -26,15 +26,13 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
     maxlength,
 }) => {
 
-    const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
+    const handleInputChange = (e: CustomEvent<{ value: string | undefined | null }>) => {
         const inputValue = e.detail.value || '';
 
         if (maxlength && inputValue.length > maxlength) {
             return;
         }
 
-        // REMOVA OU COMENTE ESTA LINHA:
-        // const isValueCurrentlyValid = regex.test(inputValue) || inputValue === ''; 
 
         // Atualiza o valor. O estado 'isInvalid' é controlado pelo componente pai.
         onValueChange(inputValue);
@@ -52,7 +50,7 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
             </IonLabel>
             <IonInput
                 value={value}
-                onIonChange={handleInputChange}
+                onIonChange={handleInputChange as any}
                 required
                 pattern={regex.source}
                 type={type}
