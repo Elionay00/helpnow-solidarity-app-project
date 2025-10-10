@@ -1,4 +1,4 @@
-// src/pages/StartPage/Home.tsx
+// src/pages/StartPage/Home.tsx 
 
 import React, { useState } from "react";
 import {
@@ -31,6 +31,7 @@ import {
   settingsOutline,
   logOutOutline,
   giftOutline,
+  briefcaseOutline, // --- ÍCONE ADICIONADO ---
 } from "ionicons/icons";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -266,6 +267,17 @@ const Home: React.FC = () => {
         <IonButton expand="block" color="light" onClick={() => goTo("/feed")}>
           <IonIcon slot="start" icon={listOutline} />
           Ver pedidos
+        </IonButton>
+
+        {/* --- BOTÃO ADICIONADO --- */}
+        <IonButton
+          expand="block"
+          color="tertiary"
+          onClick={() => goTo("/cadastro-profissional")}
+          style={{ marginTop: 16 }}
+        >
+          <IonIcon slot="start" icon={briefcaseOutline} />
+          Sou Profissional / Cadastrar Serviço
         </IonButton>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">

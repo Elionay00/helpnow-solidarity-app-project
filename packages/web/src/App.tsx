@@ -1,3 +1,5 @@
+// /packages/_web/src/App.tsx - CÓDIGO COMPLETO E ATUALIZADO
+
 import React, { Suspense, useState, useEffect } from "react";
 import {
   IonApp,
@@ -13,7 +15,6 @@ import {
   IonContent,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-// --- LINHA CORRIGIDA AQUI ---
 import { Route, Redirect, type RouteProps } from 'react-router-dom';
 import { homeOutline, mapOutline, personCircleOutline } from "ionicons/icons";
 import { onAuthStateChanged } from "firebase/auth";
@@ -35,6 +36,8 @@ import "./theme/variables.css";
 /* --- Lazy Imports das Páginas --- */
 const Login = React.lazy(() => import("./Autentication/userLogin/interactionUser/LoginPresentation"));
 const Register = React.lazy(() => import("./Autentication/userRegister/interactionUser/RegisterPresentation"));
+// --- LINHA ADICIONADA ---
+const CadastroProfissional = React.lazy(() => import("./pages/CadastroProfissional/CadastroProfissional"));
 const WelcomePresentation = React.lazy(() => import("./pages/welcome/WelcomePresentation"));
 const Feed = React.lazy(() => import("./pages/community/Feed"));
 const NeedHelp = React.lazy(() => import("./pages/HelpRequests/needHelp"));
@@ -129,6 +132,8 @@ const App: React.FC = () => {
             {/* --- Rotas Públicas (NÃO TÊM ABAS) --- */}
             <Route path="/welcome" component={WelcomePresentation} exact />
             <Route path="/register" component={Register} exact />
+            {/* --- LINHA ADICIONADA --- */}
+            <Route path="/cadastro-profissional" component={CadastroProfissional} exact />
             <Route path="/login" component={Login} exact />
             <Route path="/logout" component={LogoutScreen} exact />
 
