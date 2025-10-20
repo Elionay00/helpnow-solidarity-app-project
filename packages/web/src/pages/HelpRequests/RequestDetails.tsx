@@ -24,48 +24,47 @@ import {
 } from '@ionic/react';
 import { chatbubblesOutline } from 'ionicons/icons';
 // import './OrderDetailsPage.css'; // Certifique-se de que o CSS está correto
-
-interface Order extends DocumentData {
+interface HelpRequest extends DocumentData {
   id: string;
   titulo: string;
   descricao: string;
-  status: 'pendente' | 'em atendimento' | 'concluido';
-  autorId: string;
-  ajudanteId?: string;
+  status: 'aberto' | 'em atendimento' | 'concluido';
+  requesterId: string;
+  helperId?: string;
 }
 
-const OrderDetailsPage = () => {
-  const { orderId } = useParams();
+const RequestDetailsPage = () => {
+  const { id } = useParams<{ id: string }>();
   const history = useHistory();
-  const [order, setOrder] = useState<Order | null>(null);
+  const [request, setRequest] = useState<HelpRequest | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [presentToast] = useIonToast();
+  const [present] = useIonToast();
 
   useEffect(() => {
     const authUnsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
 
-    if (!orderId) {
+    if (!id) {
       setLoading(false);
-      presentToast({ message: 'ID do pedido não encontrado.', duration: 3000, color: 'danger' });
+      present({ message: 'ID do pedido não encontrado.', duration: 3000, color: 'danger' });
       history.goBack();
       return;
     }
 
-    const docRef = doc(firestore, 'pedidosDeAjuda', orderId);
+    const docRef = doc(firestore, 'pedidosDeAjuda', id);
     const orderUnsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        setOrder({ id: docSnap.id, ...docSnap.data() } as Order);
+        setRequest({ id: docSnap.id, ...docSnap.data() } as HelpRequest);
       } else {
-        presentToast({ message: 'Pedido não encontrado.', duration: 3000, color: 'danger' });
+        present({ message: 'Pedido não encontrado.', duration: 3000, color: 'danger' });
         history.goBack();
       }
       setLoading(false);
     }, (error) => {
       console.error("Erro ao buscar pedido:", error);
-      presentToast({ message: 'Erro ao carregar o pedido.', duration: 3000, color: 'danger' });
+      present({ message: 'Erro ao carregar o pedido.', duration: 3000, color: 'danger' });
       setLoading(false);
     });
 
@@ -73,56 +72,65 @@ const OrderDetailsPage = () => {
       authUnsubscribe();
       orderUnsubscribe();
     };
-  }, [orderId, history, presentToast]);
+  }, [id, history, present]);
 
   const handleOpenChat = () => {
-    if (orderId) {
-      history.push(`/chat/${orderId}`);
+    if (id) {
+      history.push(`/chat/${id}`);
     }
   };
 
   const permissions = useMemo(() => {
-    if (!user || !order) return {};
-    const isOwner = order.autorId === user.uid;
-    const isHelper = order.ajudanteId === user.uid;
-    const isAssigned = !!order.ajudanteId;
+    if (!user || !request) return {};
+    const isOwner = request.requesterId === user.uid;
+    const isHelper = request.helperId === user.uid;
+    const isAssigned = !!request.helperId;
 
     return {
-      canAccept: !isOwner && !isAssigned && order.status === 'pendente',
-      canComplete: isAssigned && (isOwner || isHelper) && order.status === 'em atendimento',
-      canDelete: isOwner && order.status === 'pendente',
-      canOpenChat: isAssigned && (isOwner || isHelper) && order.status === 'em atendimento',
+      canAccept: !isOwner && !isAssigned && request.status === 'aberto',
+      canComplete: isAssigned && (isOwner || isHelper) && request.status === 'em atendimento',
+      canDelete: isOwner && request.status === 'aberto',
+      canOpenChat: isAssigned && (isOwner || isHelper) && request.status === 'em atendimento',
     };
-  }, [user, order]);
+  }, [user, request]);
 
   const handleAcceptOrder = async () => {
-            if (!orderId || !user) return;
-            const orderRef = doc(firestore, 'pedidosDeAjuda', orderId);    try {
+    if (!id || !user) return;
+    const orderRef = doc(firestore, 'pedidosDeAjuda', id);
+    try {
       await updateDoc(orderRef, {
-        ajudanteId: user.uid,
+        helperId: user.uid,
         status: 'em atendimento'
       });
-      presentToast({ message: 'Você aceitou o pedido! Obrigado por ajudar.', duration: 3000, color: 'success' });
-    } catch {
-      presentToast({ message: 'Erro ao aceitar o pedido.', duration: 3000, color: 'danger' });
+      present({ message: 'Você aceitou o pedido! Obrigado por ajudar.', duration: 3000, color: 'success' });
+    } catch (error) {
+      console.error("Erro ao aceitar pedido:", error);
+      present({ message: 'Erro ao aceitar o pedido.', duration: 3000, color: 'danger' });
     }
   };
 
   const handleCompleteOrder = async () => {
-    if (!orderId) return;
-    const orderRef = doc(firestore, 'pedidosDeAjuda', orderId);
+    if (!id) return;
+    const orderRef = doc(firestore, 'pedidosDeAjuda', id);
     try {
       await updateDoc(orderRef, {
         status: 'concluido'
       });
-      presentToast({ message: 'Pedido concluído com sucesso!', duration: 3000, color: 'success' });
-    } catch {
-      presentToast({ message: 'Erro ao concluir o pedido.', duration: 3000, color: 'danger' });
+      present({ message: 'Pedido concluído com sucesso!', duration: 3000, color: 'success' });
+    } catch (error) {
+      console.error("Erro ao concluir pedido:", error);
+      present({ message: 'Erro ao concluir o pedido.', duration: 3000, color: 'danger' });
     }
   };
 
-  const handleDeleteOrder = async () => {
-    // ... (sua lógica de exclusão)
+  const handleDeleteRequest = async () => {
+    // A lógica de exclusão real (deleteDoc) pode ser adicionada aqui.
+    // Por segurança, pode ser melhor apenas "cancelar" o pedido.
+    if (!id) return;
+    const orderRef = doc(firestore, 'pedidosDeAjuda', id);
+    await updateDoc(orderRef, { status: 'cancelado' });
+    present({ message: 'Pedido cancelado.', duration: 2000, color: 'medium' });
+    history.goBack();
   };
 
   return (
@@ -137,15 +145,15 @@ const OrderDetailsPage = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <IonLoading isOpen={loading} message={'A carregar...'} />
-        {order && (
+        {request && (
           <IonCard>
             <IonCardHeader>
-              <IonCardTitle>{order.titulo}</IonCardTitle>
+              <IonCardTitle>{request.titulo}</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
-              <p>{order.descricao}</p>
-              <p><strong>Status:</strong> {order.status}</p>
-              {order.ajudanteId && <p><strong>Ajudante:</strong> {order.ajudanteId}</p>}
+              <p>{request.descricao}</p>
+              <p><strong>Status:</strong> {request.status}</p>
+              {request.helperId && <p><strong>Ajudante:</strong> {request.helperId}</p>}
 
               <div className="ion-padding-top">
                 {permissions.canAccept && (
@@ -161,7 +169,7 @@ const OrderDetailsPage = () => {
                   </IonButton>
                 )}
                 {permissions.canDelete && (
-                  <IonButton expand="block" color="danger" onClick={handleDeleteOrder}>Apagar Pedido</IonButton>
+                  <IonButton expand="block" color="danger" onClick={handleDeleteRequest}>Apagar Pedido</IonButton>
                 )}
               </div>
             </IonCardContent>
@@ -172,4 +180,4 @@ const OrderDetailsPage = () => {
   );
 };
 
-export default OrderDetailsPage;
+export default RequestDetailsPage;
