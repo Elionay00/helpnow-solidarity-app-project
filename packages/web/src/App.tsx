@@ -1,4 +1,4 @@
-// /packages/_web/src/App.tsx - CÓDIGO COMPLETO E ATUALIZADO
+// /packages/_web/src/App.tsx - CÓDIGO COMPLETO E CORRIGIDO
 
 import React, { Suspense, useState, useEffect } from "react";
 import {
@@ -36,7 +36,6 @@ import "./theme/variables.css";
 /* --- Lazy Imports das Páginas --- */
 const Login = React.lazy(() => import("./Autentication/userLogin/interactionUser/LoginPresentation"));
 const Register = React.lazy(() => import("./Autentication/userRegister/interactionUser/RegisterPresentation"));
-// --- LINHA ADICIONADA ---
 const CadastroProfissional = React.lazy(() => import("./pages/CadastroProfissional/CadastroProfissional"));
 const WelcomePresentation = React.lazy(() => import("./pages/welcome/WelcomePresentation"));
 const Feed = React.lazy(() => import("./pages/community/Feed"));
@@ -50,6 +49,10 @@ const ProfilePage = React.lazy(() => import("./pages/Profile/Profile"));
 const LogoutScreen = React.lazy(() => import("./Autentication/logout/LogoutScreen"));
 const PremiumFeatures = React.lazy(() => import("./pages/PremiumFeatures/PremiumFeatures"));
 const DoarAfiliado = React.lazy(() => import("./pages/doar-afiliado/doar-afiliado"));
+// --- CORREÇÃO AQUI ---
+// O caminho agora aponta para a nova pasta que você criou.
+const EncontrarProfissionais = React.lazy(() => import("./pages/CadastroProfissional/EncontrarProfissionais"));
+
 
 setupIonicReact();
 
@@ -132,7 +135,6 @@ const App: React.FC = () => {
             {/* --- Rotas Públicas (NÃO TÊM ABAS) --- */}
             <Route path="/welcome" component={WelcomePresentation} exact />
             <Route path="/register" component={Register} exact />
-            {/* --- LINHA ADICIONADA --- */}
             <Route path="/cadastro-profissional" component={CadastroProfissional} exact />
             <Route path="/login" component={Login} exact />
             <Route path="/logout" component={LogoutScreen} exact />
@@ -145,6 +147,8 @@ const App: React.FC = () => {
             <PrivateRoute path="/pedido/:id" component={RequestDetailsPage} userAuthenticated={userAuthenticated} />
             <PrivateRoute path="/premium-features" component={PremiumFeatures} userAuthenticated={userAuthenticated} exact />
             <PrivateRoute path="/doar-afiliado" component={DoarAfiliado} userAuthenticated={userAuthenticated} exact />
+            {/* --- NOVA ROTA ADICIONADA --- */}
+            <PrivateRoute path="/encontrar-profissionais" component={EncontrarProfissionais} userAuthenticated={userAuthenticated} exact />
             
             <PrivateRoute 
               path="/tabs" 

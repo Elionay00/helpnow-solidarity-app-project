@@ -1,15 +1,17 @@
-const express = require('express');
-const router = express.Router();
+const { Router } = require('express');
+const UserController = require('../controllers/UserController');
+const authMiddleware = require('../middlewares/auth'); // 1. IMPORTAMOS O NOSSO SEGURANÇA
 
-// 1. Importamos o nosso "engenheiro", o userController.
-const userController = require('../controllers/userController');
+const userRoutes = Router();
 
-// 2. Criamos a rota para o cadastro de usuários.
-// Quando uma requisição do tipo POST chegar no endereço '/usuarios',
-// o método 'createUser' do nosso controller será executado.
-router.post('/usuarios', userController.createUser);
+// Rota pública: qualquer um pode criar um usuário
+userRoutes.post('/', UserController.create);
 
-// Adicione outras rotas de usuário aqui no futuro (ex: login, buscar usuário, etc.)
+// ---- A PARTIR DAQUI, TODAS AS ROTAS PRECISAM DE AUTENTICAÇÃO ----
 
-// 3. Exportamos o router com a nossa nova rota configurada.
-module.exports = router;
+userRoutes.use(authMiddleware); // 2. APLICAMOS O SEGURANÇA EM TODAS AS ROTAS ABAIXO DELE
+
+// Rota privada: só usuários logados podem ver seu perfil
+userRoutes.get('/profile', UserController.showProfile); // 3. CRIAMOS A ROTA E O MÉTODO NO CONTROLLER
+
+module.exports = userRoutes;

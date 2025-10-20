@@ -1,3 +1,5 @@
+// packages/_web/src/hooks/usePerfilLogic.ts (ARQUIVO ATUALIZADO)
+
 import { useState, useEffect, useCallback } from "react";
 import { type User } from "firebase/auth";
 import { firestore as db, auth } from "../../firebase/firebaseConfig";
@@ -9,6 +11,9 @@ import {
   orderBy,
   doc,
   deleteDoc,
+  // ADICIONADO AQUI
+  updateDoc, 
+  Timestamp // Timestamp é bom para a data de expiração
 } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 
@@ -25,6 +30,7 @@ export const usePerfilLogic = (presentToast: (options: { message: string; durati
   const [myHelps, setMyHelps] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ... (a função fetchData continua a mesma) ...
   const fetchData = useCallback(async (uid: string) => {
     try {
       // CORREÇÃO APLICADA AQUI
@@ -64,6 +70,7 @@ export const usePerfilLogic = (presentToast: (options: { message: string; durati
     }
   }, [presentToast]);
 
+  // ... (o useEffect continua o mesmo) ...
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
@@ -77,10 +84,12 @@ export const usePerfilLogic = (presentToast: (options: { message: string; durati
     return () => unsubscribe();
   }, [fetchData]);
 
+  // ... (o handleLogout continua o mesmo) ...
   const handleLogout = async () => {
     await signOut(auth);
   };
 
+  // ... (o handleCancelRequest continua o mesmo) ...
   const handleCancelRequest = async (requestId: string) => {
     if (!requestId) return;
     try {
@@ -102,11 +111,55 @@ export const usePerfilLogic = (presentToast: (options: { message: string; durati
     }
   };
 
+  // ... (o getStatusColor continua o mesmo) ...
   const getStatusColor = (status: string) => {
     if (status === "open") return "success";
     if (status === "in_progress") return "warning";
     if (status === "completed") return "medium";
     return "primary";
+  };
+
+  // ---
+  // --- FUNÇÃO NOVA ADICIONADA AQUI ---
+  // ---
+  const handleUpgradePremium = async () => {
+    if (!user) {
+      presentToast({ message: "Você precisa estar logado.", duration: 3000, color: "danger" });
+      return;
+    }
+
+    // Define a data de expiração (ex: 30 dias a partir de hoje)
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
+
+    // Pega a referência do documento do PROFISSIONAL
+    const userDocRef = doc(db, "profissionais", user.uid);
+
+    try {
+      console.log("Atualizando usuário para Premium...");
+      await updateDoc(userDocRef, {
+        isPremium: true,
+        premiumExpiresAt: Timestamp.fromDate(expirationDate) // Salva a data de expiração
+      });
+      
+      console.log("Usuário atualizado com sucesso!");
+      presentToast({
+        message: "Parabéns! Você agora é um Assinante Premium.",
+        duration: 4000,
+        color: "success",
+      });
+      
+      // Opcional: Recarregar os dados do usuário para refletir a mudança
+      // Se você guardar o isPremium no estado (useState), precisará atualizar aqui.
+
+    } catch (error) {
+      console.error("Erro ao atualizar para premium:", error);
+      presentToast({
+        message: "Erro ao tentar se tornar premium. Tente novamente.",
+        duration: 3000,
+        color: "danger",
+      });
+    }
   };
 
   return {
@@ -117,5 +170,7 @@ export const usePerfilLogic = (presentToast: (options: { message: string; durati
     handleLogout,
     handleCancelRequest,
     getStatusColor,
+    // ADICIONADO AQUI:
+    handleUpgradePremium, // Exporta a nova função
   };
 };

@@ -1,3 +1,5 @@
+/* /packages/_web/src/pages/Feed/Feed.css - VERSÃO FINAL (inline-block) */
+
 .spinner-container {
   display: flex;
   justify-content: center;
@@ -7,7 +9,7 @@
 
 .request-card {
   margin-bottom: 16px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-image {
@@ -23,4 +25,64 @@
   margin-top: 12px;
   font-size: 0.9em;
   color: #666;
+}
+
+/* --- ESTILOS PARA A SEÇÃO DE PARCEIROS --- */
+
+.partners-section {
+  padding: 10px 0;
+  background: var(--ion-color-light-shade, #f4f5f8);
+  border-bottom: 1px solid var(--ion-color-step-150, #e0e0e0);
+}
+
+.partners-title {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0 16px;
+  margin-bottom: 10px;
+  color: var(--ion-color-medium-shade);
+}
+
+/* --- ATUALIZAÇÃO DA TÁTICA (AGORA USANDO inline-block) --- */
+.partners-section .partners-carousel {
+  overflow-x: auto !important; /* Habilita rolagem horizontal */
+  white-space: nowrap !important; /* Impede que os itens quebrem a linha */
+  padding-left: 16px;
+  padding-right: 16px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.partners-section .partners-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- ATUALIZAÇÃO DA TÁTICA (AGORA USANDO inline-block) --- */
+.partners-section .partner-card {
+  display: inline-block !important; /* Faz os itens ficarem lado a lado */
+  width: 100px;
+  margin-right: 12px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--ion-text-color, #000);
+  vertical-align: top; /* Alinha os cartões pelo topo */
+}
+
+.partner-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--ion-color-step-200, #ccc);
+  margin: 0 auto 5px auto;
+  object-fit: cover;
+  background-color: white;
+}
+
+.partner-card ion-label {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  width: 100%;
 }

@@ -1,34 +1,25 @@
+// /packages/_web/src/Autentication/userLogin/logicLayer/LoginLogic.ts - CÓDIGO COMPLETO
+
 import { useState } from 'react';
-import { useIonToast } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { FirebaseError } from 'firebase/app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../firebase/firebaseConfig';
+import { auth } from '../../../firebase/firebaseConfig'; // Verifique se o caminho para firebaseConfig está correto
 
-export function useLoginLogic() {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  
-  // --- ADICIONADO ---
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-
+export const useLoginLogic = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const history = useHistory();
-  const [presentToast] = useIonToast();
 
-  const showToast = (message: string, color: string = 'danger') => {
-    presentToast({
-      message,
-      duration: 3000,
-      color,
-      position: 'bottom',
-    });
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleLogin = async () => {
     if (!email || !password) {
-      showToast('Por favor, preencha seu email e senha.');
+      setError('Por favor, preencha o e-mail e a senha.');
       return;
     }
 
@@ -36,45 +27,24 @@ export function useLoginLogic() {
     setError('');
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      showToast('Login realizado com sucesso!', 'success');
-      history.push('/home');
-    } catch (err) {
-      if (err instanceof FirebaseError) {
-        console.error('Erro ao fazer login:', err.code, err.message);
-        let errorMessage = 'Erro ao fazer login. Verifique seus dados e tente novamente.';
-        switch (err.code) {
-          case 'auth/user-not-found':
-          case 'auth/wrong-password':
-            errorMessage = 'Email ou senha inválidos. Por favor, verifique e tente novamente.';
-            break;
-          case 'auth/invalid-email':
-            errorMessage = 'O formato do email é inválido. Digite um email válido.';
-            break;
-          case 'auth/user-disabled':
-            errorMessage = 'Sua conta foi desativada. Entre em contato com o suporte.';
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = 'Muitas tentativas de login. Tente novamente mais tarde.';
-            break;
-          default:
-            errorMessage = `Ocorreu um erro: ${err.message}`;
-            break;
-        }
-        setError(errorMessage);
+      // A MÁGICA DO FIREBASE ACONTECE AQUI
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('Login bem-sucedido!', userCredential.user);
+
+      // Redireciona para a página principal após o login
+      history.push('/tabs/home');
+
+    } catch (err: any) {
+      console.error("Erro no login:", err.code);
+      // Traduz o erro do Firebase para uma mensagem amigável
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setError('E-mail ou senha inválidos.');
+      } else {
+        setError('Ocorreu um erro ao tentar fazer o login.');
       }
     } finally {
       setLoading(false);
     }
-  };
-
-  const goToRegister = () => {
-    history.push('/register');
-  };
-
-  // --- ADICIONADO ---
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
   };
 
   return {
@@ -82,12 +52,10 @@ export function useLoginLogic() {
     setEmail,
     password,
     setPassword,
-    handleLogin,
-    goToRegister,
     loading,
     error,
-    // --- ADICIONADO ---
+    handleLogin,
     showPassword,
     toggleShowPassword,
   };
-}
+};

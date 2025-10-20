@@ -1,4 +1,4 @@
-// src/pages/StartPage/Home.tsx 
+// /packages/_web/src/pages/StartPage/Home.tsx - CÓDIGO COMPLETO E ATUALIZADO
 
 import React, { useState } from "react";
 import {
@@ -31,7 +31,8 @@ import {
   settingsOutline,
   logOutOutline,
   giftOutline,
-  briefcaseOutline, // --- ÍCONE ADICIONADO ---
+  briefcaseOutline,
+  searchOutline, // --- ÍCONE ADICIONADO ---
 } from "ionicons/icons";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -65,7 +66,7 @@ const Home: React.FC = () => {
   const goToProfile = () => {
     setPopoverEvent(undefined);
     setTimeout(() => {
-      history.push("/tabs/perfil"); // Corrigido para a nova rota de abas
+      history.push("/tabs/perfil");
     }, 300);
   };
 
@@ -236,6 +237,17 @@ const Home: React.FC = () => {
             </SwiperSlide>
           ))}
         </Swiper>
+        
+        {/* --- NOVO BOTÃO ADICIONADO --- */}
+        <IonButton
+          expand="block"
+          color="primary"
+          onClick={() => goTo("/encontrar-profissionais")}
+          style={{ marginBottom: 16 }}
+        >
+          <IonIcon slot="start" icon={searchOutline} />
+          Encontrar Profissionais
+        </IonButton>
 
         <IonButton
           expand="block"
@@ -269,7 +281,6 @@ const Home: React.FC = () => {
           Ver pedidos
         </IonButton>
 
-        {/* --- BOTÃO ADICIONADO --- */}
         <IonButton
           expand="block"
           color="tertiary"
