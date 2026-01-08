@@ -6,7 +6,14 @@
     "packages/*"
   ],
   "dependencies": {
+    "@expo/webpack-config": "^19.0.0",
     "bcryptjs": "^3.0.2",
-    "firebase": "^12.3.0"
+    "expo": "^54.0.31",
+    "firebase": "^12.3.0",
+    "react-native-web": "~0.19.6"
+  },
+  "devDependencies": {
+    "metro": "^0.83.3",
+    "metro-core": "^0.83.3"
   }
 }

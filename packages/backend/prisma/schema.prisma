@@ -2,17 +2,23 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// COLE ESTE BLOCO AQUI
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db" // Usaremos um arquivo de banco de dados simples por enquanto
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-// Seus models User e Transaction vêm depois...
 model User {
-  // ...
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
 }
 
-model Transaction {
-  // ...
+model HelpRequest {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  status      String   @default("open") // open, closed
+  createdAt   DateTime @default(now())
 }

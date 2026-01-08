@@ -8,12 +8,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Rota de teste
+app.get('/', (req, res) => res.send('🚀 Backend HelpNow Rodando na 5001!'));
+
 // Rota de Cadastro
 app.post('/api/usuarios', async (req, res) => {
   try {
     const { email, name } = req.body;
     const novoUsuario = await prisma.user.create({ data: { email, name } });
-    console.log("✅ Usuário salvo no Supabase:", novoUsuario);
+    console.log("✅ Usuário salvo:", novoUsuario);
     res.json(novoUsuario);
   } catch (error) {
     console.error("❌ Erro:", error.message);
@@ -21,9 +24,10 @@ app.post('/api/usuarios', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('🚀 Backend HelpNow Rodando na 5001!'));
-
+// AQUI ESTÁ A MUDANÇA PARA A PORTA 5001
 const PORT = 5001; 
 app.listen(PORT, () => {
-  console.log(`\n✅ SERVIDOR RODANDO EM: http://localhost:${PORT}\n`);
+  console.log(`\n=========================================`);
+  console.log(`✅ SERVIDOR RODANDO EM: http://localhost:${PORT}`);
+  console.log(`=========================================\n`);
 });
