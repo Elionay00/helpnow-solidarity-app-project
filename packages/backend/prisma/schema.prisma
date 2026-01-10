@@ -9,16 +9,31 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  name         String
+  trustScore   Int           @default(0)
+  createdAt    DateTime      @default(now())
+  
+  // Relação: Um usuário pode ter vários pedidos de ajuda
+  helpRequests HelpRequest[] 
 }
 
 model HelpRequest {
   id          String   @id @default(uuid())
   title       String
   description String
-  status      String   @default("open") // open, closed
+  category    String   // Ex: ALIMENTOS, SAUDE, TRANSPORTE
+  status      String   @default("OPEN") // OPEN, CLOSED
+  
+  // Coordenadas para o mapa
+  latitude    Float
+  longitude   Float
+
   createdAt   DateTime @default(now())
+
+  // Ligação com o usuário que criou
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
 }
