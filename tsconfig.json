@@ -3,12 +3,19 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@helpnow/shared": ["packages/shared/src"]
+      "@helpnow/shared": [
+        "packages/shared/src"
+      ]
     },
     "composite": true
   },
   "references": [
-    { "path": "./packages/shared" },
-    { "path": "./packages/backend" }
-  ]
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/backend"
+    }
+  ],
+  "extends": "expo/tsconfig.base"
 }

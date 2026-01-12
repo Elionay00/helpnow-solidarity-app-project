@@ -1,24 +1,26 @@
-import React, { createContext, useState, useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// ... dentro do AuthProvider ...
 
-// Criando o contexto
-export const AuthContext = createContext<any>({});
+  // 1. Carregar dados ao iniciar
+  useEffect(() => {
+    async function loadStorageData() {
+      const storageUser = await AsyncStorage.getItem('@Auth:user');
+      if (storageUser) {
+        setUser(JSON.parse(storageUser));
+      }
+    }
+    loadStorageData();
+  }, []);
 
-// O segredo para o Stack parar de dar erro é o "{ children }" aqui:
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState(null);
-
-  async function signIn() {
-    // Lógica simplificada para teste
-    setUser({ name: 'Usuario' } as any);
+  async function signIn(email: string, password: string) {
+    const response = { name: 'Usuário Logado' }; // Simulação
+    setUser(response);
+    // 2. Salvar no celular
+    await AsyncStorage.setItem('@Auth:user', JSON.stringify(response));
   }
 
-  return (
-    <AuthContext.Provider value={{ signed: !!user, user, signIn }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export function useAuth() {
-  return useContext(AuthContext);
-}
+  async function signOut() {
+    // 3. Limpar do celular
+    await AsyncStorage.clear();
+    setUser(null);
+  }
