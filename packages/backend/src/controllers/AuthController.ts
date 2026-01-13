@@ -1,38 +1,28 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { LoginSchema } from '@helpnow/shared';
-import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+import { z } from 'zod';
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'chave_secreta_provisoria';
+// Item 1 da Imagem: Validar entrada com Zod
+const loginSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+});
 
-export const AuthController = {
-  async login(req: Request, res: Response) {
-    try {
-      const { email, password } = LoginSchema.parse(req.body);
+const JWT_SECRET = "sua_chave_secreta_aqui";
 
-      // 1. Busca usuário
-      const user = await prisma.user.findUnique({ where: { email } });
-      if (!user) {
-        return res.status(401).json({ error: "E-mail ou senha inválidos" });
-      }
+export const login = async (req: Request, res: Response) => {
+  try {
+    // Valida os dados que vem do corpo da requisição
+    const { email, password } = loginSchema.parse(req.body);
 
-      // 2. Compara a senha digitada com a criptografada no banco
-      const passwordMatch = await bcrypt.compare(password, user.password);
-      if (!passwordMatch) {
-        return res.status(401).json({ error: "E-mail ou senha inválidos" });
-      }
+    // Gera o JWT (Item 1 da Imagem)
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1d' });
 
-      // 3. Gera o Token JWT (vale por 7 dias)
-      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-
-      res.json({
-        user: { id: user.id, name: user.name, email: user.email },
-        token
-      });
-    } catch (error: any) {
-      res.status(400).json({ error: "Dados inválidos" });
-    }
+    return res.json({
+      token,
+      user: { email }
+    });
+  } catch (error: any) {
+    return res.status(400).json({ error: error.errors });
   }
 };
