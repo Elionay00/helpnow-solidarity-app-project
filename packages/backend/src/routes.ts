@@ -9,10 +9,12 @@ const routes = Router();
 routes.post('/login', login);
 
 // --- Rotas de Usuário ---
+// Certifique-se que o UserController tem as funções 'create' e 'list'
 routes.post('/users', UserController.create);
 routes.get('/users', UserController.list);
 
-// --- Rotas de Pedidos de Ajuda ('pedidos') ---
+// --- Rotas de Pedidos de Ajuda ---
+// Aqui usamos 'listAll' para bater com o controlador que corrigimos
 routes.post('/pedidos', HelpController.create);
 routes.get('/pedidos', HelpController.listAll);
 

@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@helpnow/shared": "*",
+    "@helpnow/shared": "file:../shared",
     "@prisma/client": "^5.16.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
