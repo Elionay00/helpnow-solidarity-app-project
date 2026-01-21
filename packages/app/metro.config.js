@@ -1,10 +1,28 @@
-const { getDefaultConfig } = require("expo/metro-config");
+const { getDefaultConfig } = require('expo/metro-config');
+const path = require('path');
+const { withNativeWind } = require('nativewind/metro'); // <--- 1. Importamos isto
 
-const config = getDefaultConfig(__dirname);
+const projectRoot = __dirname;
+const workspaceRoot = path.resolve(projectRoot, '../..');
 
-// força o Metro a usar o react-native-web correto
-config.resolver.extraNodeModules = {
-  "react-native-web": require.resolve("react-native-web"),
-};
+const config = getDefaultConfig(projectRoot);
 
-module.exports = config;
+// 1. Faz o Metro olhar para a raiz do workspace
+config.watchFolders = [workspaceRoot];
+
+// 2. Resolve módulos da raiz e do app
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
+
+config.resolver.disableHierarchicalLookup = true;
+
+// 3. Bloqueio do backend (mantemos isso para não quebrar)
+config.resolver.blockList = [
+  ...(config.resolver.blockList || []),
+  /packages\/backend\/.*/,
+];
+
+// 4. A MÁGICA: Envolvemos a config com o NativeWind
+module.exports = withNativeWind(config, { input: './global.css' });

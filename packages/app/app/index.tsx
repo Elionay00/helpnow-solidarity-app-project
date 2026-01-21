@@ -1,34 +1,24 @@
-import { View, Text, FlatList } from "react-native";
-import { useState } from "react";
+import { View, Text } from "react-native";
+import { Button } from "../components/Button"; // Verifique se o import do Button está certo
+import { useRouter } from "expo-router";
 
-export default function HomeScreen() {
-  const dadosFake = [
-    { id: "1", titulo: "Doação de roupas" },
-    { id: "2", titulo: "Ajuda com alimentos" },
-    { id: "3", titulo: "Transporte solidário" },
-  ];
+export default function Index() {
+  const router = useRouter();
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-        Ajudas Castanhal
-      </Text>
-
-      <FlatList
-        data={dadosFake}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View
-            style={{
-              padding: 12,
-              marginVertical: 8,
-              backgroundColor: "#eee",
-              borderRadius: 8,
-            }}
-          >
-            <Text>{item.titulo}</Text>
-          </View>
-        )}
+    <View className="flex-1 items-center justify-center bg-white p-5">
+      <Text className="text-2xl font-bold mb-5 text-gray-800">HelpNow 3.0 🚀</Text>
+      
+      {/* CORREÇÃO: Remova o /(auth) dos links */}
+      <Button 
+        title="Entrar (Login)" 
+        onPress={() => router.push("/login")} 
+      />
+      
+      <Button 
+        title="Criar Conta" 
+        variant="outline" 
+        onPress={() => router.push("/register")} 
       />
     </View>
   );

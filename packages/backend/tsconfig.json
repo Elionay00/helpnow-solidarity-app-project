@@ -13,5 +13,6 @@
   "include": [
     "src/**/*.ts",
     "routes/**/*.js"
-  ]
+  ],
+  "extends": "expo/tsconfig.base"
 }

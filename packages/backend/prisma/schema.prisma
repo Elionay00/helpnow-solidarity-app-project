@@ -1,25 +1,57 @@
+// packages/backend/prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
+
+// --- ENUMS (Para garantir valores fixos no banco) ---
+enum HelpCategory {
+  ALIMENTOS
+  MEDICAMENTOS
+  TRANSPORTE
+  OUTROS
+}
+
+enum HelpStatus {
+  OPEN        // Aberto/Pendente
+  IN_PROGRESS // Alguém está ajudando
+  CLOSED      // Resolvido
+}
+
+// --- MODELOS (As tabelas do banco) ---
 
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String
-  email    String  @unique
-  password String
-  orders   Order[]
+  id        String   @id @default(uuid()) // Gera um ID único automático
+  name      String
+  email     String   @unique              // Não permite e-mails repetidos
+  password  String                        // Será salva como hash (criptografada)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamento: Um usuário pode ter vários pedidos de ajuda
+  helpRequests HelpRequest[]
+
+  @@map("users") // Nome da tabela no banco será 'users' (minúsculo)
 }
 
-model Order {
-  id          Int    @id @default(autoincrement())
+model HelpRequest {
+  id          String       @id @default(uuid())
   title       String
   description String
-  status      String @default("Aberto")
-  userId      Int
-  user        User   @relation(fields: [userId], references: [id])
+  category    HelpCategory // Usa o Enum definido acima
+  status      HelpStatus   @default(OPEN)
+  latitude    Float
+  longitude   Float
+  createdAt   DateTime     @default(now())
+
+  // Relacionamento: Todo pedido pertence a um usuário
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+
+  @@map("help_requests")
 }
