@@ -1,37 +1,42 @@
-// /packages/app/app/(tabs)/_layout.tsx
-import React from 'react';
-import { Tabs } from 'expo-router';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Tabs } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme() ?? 'light';
-
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-      }}
-    >
+    <Tabs screenOptions={{ 
+      headerShown: false, 
+      tabBarActiveTintColor: "#2563EB",
+      tabBarStyle: { paddingBottom: 5, paddingTop: 5, height: 60 }
+    }}>
+      {/* Aba Início */}
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol name="house.fill" size={28} color={color} />,
+          title: "Início",
+          tabBarIcon: ({ color }) => <Ionicons name="home" size={24} color={color} />,
         }}
       />
+
+      {/* Aba Mapa */}
       <Tabs.Screen
-        name="explore"
+        name="map"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol name="paperplane.fill" size={28} color={color} />,
+          title: "Mapa",
+          tabBarIcon: ({ color }) => <Ionicons name="map" size={24} color={color} />,
         }}
       />
+
+      {/* Aba Perfil */}
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Perfil",
+          tabBarIcon: ({ color }) => <Ionicons name="person" size={24} color={color} />,
+        }}
+      />
+
+      {/* Rota Oculta (Index) - Não aparece na barra */}
+      <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
   );
 }

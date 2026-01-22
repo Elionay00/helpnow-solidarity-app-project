@@ -1,92 +1,77 @@
-  import React, { useState } from 'react';
-  import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
-  import { useRouter } from 'expo-router';
-  import axios from 'axios';
+import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { Input } from "../../components/Input";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase/firebaseConfig"; 
 
-  // --- CONFIGURAÇÃO DA API ---
-  const api = axios.create({
-    baseURL: 'http://192.168.3.38:3000', 
-    timeout: 10000,
-  });
+export default function Login() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  export default function LoginScreen() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
+  async function handleLogin() {
+    if (!email || !password) {
+      Alert.alert("Erro", "Preencha todos os campos!");
+      return;
+    }
 
-    const handleLogin = async () => {
-      if (!email || !password) {
-        Alert.alert('Erro', 'Preencha todos os campos');
-        return;
-      }
+    setIsLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.replace("/(tabs)/home");
+    } catch (error: any) {
+      console.log(error);
+      Alert.alert("Erro ao entrar", "Verifique seu e-mail e senha.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
-      setLoading(true);
-      try {
-        const response = await api.post('/login', {
-          email: email.toLowerCase().trim(),
-          password: password
-        });
+  return (
+    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: 24, backgroundColor: "white" }}>
+      <View className="items-center mb-8">
+        <Text className="text-3xl font-bold text-gray-900">HelpNow 3.0 🚀</Text>
+        <Text className="text-gray-500 mt-2">Solidariedade em ação</Text>
+      </View>
 
-        console.log('Login realizado com sucesso!', response.data);
-        Alert.alert('Sucesso!', 'Bem-vindo ao HelpNow!');
-        router.replace('/(tabs)'); 
-      } catch (error: any) {
-        console.error('Erro detalhado:', error);
-        const msg = error.response?.data?.message || 'Erro de conexão. Verifique se o Backend está ligado!';
-        Alert.alert('Falha no Login', msg);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>HelpNow Solidarity</Text>
-        
-        <TextInput
-          style={styles.input}
-          placeholder="E-mail"
+      <View className="w-full">
+        <Input
+          label="E-mail"
+          placeholder="seu@email.com"
           value={email}
           onChangeText={setEmail}
-          autoCapitalize="none"
           keyboardType="email-address"
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
+        <Input
+          label="Senha"
+          placeholder="********"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={true} // ✅ CERTO: Boolean (azul), sem aspas
         />
 
-        <TouchableOpacity 
-          style={styles.button} 
+        <TouchableOpacity
+          className={`w-full bg-blue-600 p-4 rounded-xl mt-4 items-center ${isLoading ? "opacity-70" : ""}`}
           onPress={handleLogin}
-          disabled={loading}
+          disabled={isLoading}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Entrar</Text>
-          )}
+          <Text className="text-white font-bold text-lg">
+            {isLoading ? "Entrando..." : "Entrar"}
+          </Text>
         </TouchableOpacity>
 
-        {/* --- BOTÃO DE CADASTRAR ADICIONADO AQUI --- */}
-        <TouchableOpacity onPress={() => router.push('/Register')} style={styles.registerButton}>
-          <Text style={styles.registerText}>Não tem conta? Cadastre-se aqui</Text>
+        <TouchableOpacity 
+          className="mt-6 items-center"
+          onPress={() => router.push("/(auth)/register")}
+        >
+          <Text className="text-gray-600">
+            Não tem conta? <Text className="text-blue-600 font-bold">Cadastre-se</Text>
+          </Text>
         </TouchableOpacity>
       </View>
-    );
-  }
-
-  const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
-    title: { fontSize: 28, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: '#007AFF' },
-    input: { borderWidth: 1, borderColor: '#ddd', padding: 15, borderRadius: 10, marginBottom: 15, fontSize: 16 },
-    button: { backgroundColor: '#007AFF', padding: 15, borderRadius: 10, alignItems: 'center' },
-    buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-    registerButton: { marginTop: 20 },
-    registerText: { color: '#007AFF', textAlign: 'center', fontSize: 16 }
-  });
+    </ScrollView>
+  );
+}
