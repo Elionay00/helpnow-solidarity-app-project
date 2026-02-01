@@ -1,9 +1,16 @@
-import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Input } from "../../components/Input";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase/firebaseConfig"; 
+import { auth } from "../../firebase/firebaseConfig";
 
 export default function Login() {
   const router = useRouter();
@@ -21,8 +28,7 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.replace("/(tabs)/home");
-    } catch (error: any) {
-      console.log(error);
+    } catch (error) {
       Alert.alert("Erro ao entrar", "Verifique seu e-mail e senha.");
     } finally {
       setIsLoading(false);
@@ -30,13 +36,13 @@ export default function Login() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: 24, backgroundColor: "white" }}>
-      <View className="items-center mb-8">
-        <Text className="text-3xl font-bold text-gray-900">HelpNow 3.0 🚀</Text>
-        <Text className="text-gray-500 mt-2">Solidariedade em ação</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>HelpNow 3.0 🚀</Text>
+        <Text style={styles.subtitle}>Solidariedade em ação</Text>
       </View>
 
-      <View className="w-full">
+      <View>
         <Input
           label="E-mail"
           placeholder="seu@email.com"
@@ -50,28 +56,77 @@ export default function Login() {
           placeholder="********"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry={true} // ✅ CERTO: Boolean (azul), sem aspas
+          secureTextEntry
         />
 
         <TouchableOpacity
-          className={`w-full bg-blue-600 p-4 rounded-xl mt-4 items-center ${isLoading ? "opacity-70" : ""}`}
+          style={[
+            styles.button,
+            isLoading && { opacity: 0.7 },
+          ]}
           onPress={handleLogin}
           disabled={isLoading}
         >
-          <Text className="text-white font-bold text-lg">
+          <Text style={styles.buttonText}>
             {isLoading ? "Entrando..." : "Entrar"}
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          className="mt-6 items-center"
+        <TouchableOpacity
+          style={styles.link}
           onPress={() => router.push("/(auth)/register")}
         >
-          <Text className="text-gray-600">
-            Não tem conta? <Text className="text-blue-600 font-bold">Cadastre-se</Text>
+          <Text style={styles.linkText}>
+            Não tem conta?{" "}
+            <Text style={styles.linkBold}>Cadastre-se</Text>
           </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: 24,
+    backgroundColor: "#fff",
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#111",
+  },
+  subtitle: {
+    marginTop: 8,
+    color: "#666",
+  },
+  button: {
+    backgroundColor: "#2563eb",
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 16,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  link: {
+    marginTop: 24,
+    alignItems: "center",
+  },
+  linkText: {
+    color: "#555",
+  },
+  linkBold: {
+    color: "#2563eb",
+    fontWeight: "bold",
+  },
+});
