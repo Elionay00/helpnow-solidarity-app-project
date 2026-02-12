@@ -1,5 +1,5 @@
 
-// packages/web/src/services/api.service.ts
+// packages/mobile/services/api.service.ts
 import { firestore } from '../firebase/firebaseConfig';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 
