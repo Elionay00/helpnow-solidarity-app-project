@@ -1,6 +1,22 @@
 {
   "files": [],
   "references": [
+<<<<<<< HEAD
     { "path": "./packages/app" }
   ]
 }
+=======
+    {
+      "path": "./packages/web"
+    },
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/mobile"
+    }
+  ],
+  "compilerOptions": {},
+  "extends": "expo/tsconfig.base"
+}
+>>>>>>> 229b34be4babf6c68f7f459fcbdb48bfbc1774d7

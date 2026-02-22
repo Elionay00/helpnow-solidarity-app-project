@@ -6,8 +6,13 @@
     "packages/*"
   ],
   "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
+    "axios": "^1.13.5",
     "bcryptjs": "^3.0.2",
-    "firebase": "^12.3.0"
+    "firebase": "^12.3.0",
+    "react-dom": "19.1.0",
+    "react-native": "^0.84.0",
+    "react-native-web": "^0.21.0"
   },
   "devDependencies": {
     "ajv": "^8.12.0"
