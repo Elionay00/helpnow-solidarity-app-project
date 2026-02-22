@@ -1,14 +1,19 @@
-// Arquivo: D:/helpnow-solidarity-app-project/tsconfig.base.json
-
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
     "strict": true,
     "baseUrl": ".",
     "paths": {
       "@helpnow/shared": ["packages/shared/index.ts"],
-  "@helpnow/shared/*": ["packages/shared/*"]
-    },
-    "skipLibCheck": true
+      "@helpnow/shared/*": ["packages/shared/*"]
+    }
   }
 }

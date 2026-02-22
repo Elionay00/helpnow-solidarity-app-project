@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HelpNow</string>
+    <string name="title_activity_main">HelpNow</string>
+    <string name="package_name">com.helpnow.app</string>
+    <string name="custom_url_scheme">com.helpnow.app</string>
+</resources>
