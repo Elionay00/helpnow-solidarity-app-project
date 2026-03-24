@@ -12,7 +12,9 @@
     "axios": "^1.13.5",
     "bcryptjs": "^3.0.2",
     "firebase": "^12.3.0",
+    "leaflet": "^1.9.4",
     "react-dom": "19.1.0",
+    "react-leaflet": "^5.0.0",
     "react-native": "^0.84.0",
     "react-native-web": "^0.21.0"
   },
