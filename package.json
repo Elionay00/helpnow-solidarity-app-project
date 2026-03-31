@@ -16,7 +16,8 @@
     "react-dom": "19.1.0",
     "react-leaflet": "^5.0.0",
     "react-native": "^0.84.0",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "react-router-dom": "5.3.4"
   },
   "devDependencies": {
     "@capacitor/cli": "7.5.0",
