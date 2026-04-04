@@ -22,9 +22,10 @@ import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 
-/* --- Lazy Imports (Ajustados para a sua pasta real: "auth") --- */
+/* --- Lazy Imports --- */
 const Login = React.lazy(() => import("./auth/userLogin/interactionUser/LoginPresentation"));
 const Register = React.lazy(() => import("./auth/userRegister/interactionUser/RegisterPresentation"));
+const ForgotPassword = React.lazy(() => import("./auth/forgotPassword/interactionUser/ForgotPassword")); // <-- ADICIONADO AQUI
 const Welcome = React.lazy(() => import("./pages/welcome/WelcomePresentation"));
 const Home = React.lazy(() => import("./pages/StartPage/Home"));
 const MapPage = React.lazy(() => import("./pages/MapHelp/Map"));
@@ -46,7 +47,6 @@ const App: React.FC = () => {
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Usando firebaseAuth para não confundir com a pasta auth
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
       setIsAuth(!!user);
     });
@@ -65,6 +65,7 @@ const App: React.FC = () => {
               <Route path="/welcome" exact>{isAuth ? <Redirect to="/tabs/home" /> : <Welcome />}</Route>
               <Route path="/login" exact>{isAuth ? <Redirect to="/tabs/home" /> : <Login />}</Route>
               <Route path="/register" exact>{isAuth ? <Redirect to="/tabs/home" /> : <Register />}</Route>
+              <Route path="/forgot-password" exact>{isAuth ? <Redirect to="/tabs/home" /> : <ForgotPassword />}</Route> {/* <-- ROTA ADICIONADA AQUI */}
               <Route path="/logout" component={LogoutScreen} exact />
 
               {/* --- Layout com Abas --- */}

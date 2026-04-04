@@ -24,27 +24,9 @@ function useLoginLogic() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       showToast("Login realizado com sucesso!", "success");
-      
-      // A correção crucial está aqui:
       history.push("/tabs/home");
-      
     } catch (error) {
-      let errorMessage = "Erro ao entrar. Verifique suas credenciais.";
-      if (error instanceof FirebaseError) {
-        switch (error.code) {
-          case "auth/user-not-found":
-          case "auth/wrong-password":
-          case "auth/invalid-credential":
-            errorMessage = "Email ou senha incorretos.";
-            break;
-          case "auth/invalid-email":
-            errorMessage = "Formato de email inválido.";
-            break;
-          case "auth/user-disabled":
-            errorMessage = "Este usuário foi desativado.";
-            break;
-        }
-      }
+      let errorMessage = "Email ou senha incorretos.";
       showToast(errorMessage);
     }
   };
@@ -53,15 +35,18 @@ function useLoginLogic() {
     history.push("/register");
   };
 
+  // --- ADICIONADO AQUI ---
+  const handleForgotPassword = () => {
+    history.push("/forgot-password");
+  };
+
   return {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    showPassword,
-    setShowPassword,
+    email, setEmail,
+    password, setPassword,
+    showPassword, setShowPassword,
     handleLogin,
     handleGoToRegister,
+    handleForgotPassword, // --- ADICIONADO NO RETURN TAMBÉM ---
   };
 }
 
