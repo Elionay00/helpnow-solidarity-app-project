@@ -1,50 +1,56 @@
-// /packages/_web/src/Autentication/userLogin/logicLayer/LoginLogic.ts - CÓDIGO COMPLETO
+import { useState } from "react";
+import { useHistory } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../firebase/firebaseConfig";
+import { useIonToast } from "@ionic/react";
+import { FirebaseError } from "firebase/app";
 
-import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../firebase/firebaseConfig'; // Verifique se o caminho para firebaseConfig está correto
-
-export const useLoginLogic = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+function useLoginLogic() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [presentToast] = useIonToast();
   const history = useHistory();
 
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
+  const showToast = (message: string, color: string = "danger") => {
+    presentToast({ message, duration: 3000, color, position: "bottom" });
   };
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError('Por favor, preencha o e-mail e a senha.');
+      showToast("Por favor, preencha todos os campos.", "warning");
       return;
     }
-
-    setLoading(true);
-    setError('');
-
     try {
-      // A MÁGICA DO FIREBASE ACONTECE AQUI
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Login bem-sucedido!', userCredential.user);
-
-      // Redireciona para a página principal após o login
-      history.push('/tabs/home');
-
-    } catch (err: any) {
-      console.error("Erro no login:", err.code);
-      // Traduz o erro do Firebase para uma mensagem amigável
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setError('E-mail ou senha inválidos.');
-      } else {
-        setError('Ocorreu um erro ao tentar fazer o login.');
+      await signInWithEmailAndPassword(auth, email, password);
+      showToast("Login realizado com sucesso!", "success");
+      
+      // A correção crucial está aqui:
+      history.push("/tabs/home");
+      
+    } catch (error) {
+      let errorMessage = "Erro ao entrar. Verifique suas credenciais.";
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case "auth/user-not-found":
+          case "auth/wrong-password":
+          case "auth/invalid-credential":
+            errorMessage = "Email ou senha incorretos.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "Formato de email inválido.";
+            break;
+          case "auth/user-disabled":
+            errorMessage = "Este usuário foi desativado.";
+            break;
+        }
       }
-    } finally {
-      setLoading(false);
+      showToast(errorMessage);
     }
+  };
+
+  const handleGoToRegister = () => {
+    history.push("/register");
   };
 
   return {
@@ -52,10 +58,11 @@ export const useLoginLogic = () => {
     setEmail,
     password,
     setPassword,
-    loading,
-    error,
-    handleLogin,
     showPassword,
-    toggleShowPassword,
+    setShowPassword,
+    handleLogin,
+    handleGoToRegister,
   };
-};
+}
+
+export { useLoginLogic };
