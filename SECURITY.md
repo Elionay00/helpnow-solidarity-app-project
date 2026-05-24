@@ -1,1 +1,0 @@
-# Termo de Segurança HelpNow

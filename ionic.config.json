@@ -1,5 +1,11 @@
 {
   "name": "HelpNow App",
-  "integrations": {},
-  "type": "react"
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react",
+  "defaultProtocol": "http",
+  "dev": {
+    "port": 5173
+  }
 }

@@ -1,15 +1,25 @@
+
 {
-  "files": [],
-  "references": [
-    { "path": "./packages/app" },
-    { "path": "./packages/web" },
-    { "path": "./packages/shared" },
-    { "path": "./packages/mobile" }
-  ],
   "compilerOptions": {
+    "target": "ES2017",
+    "useDefineForClassFields": true,
+    "lib": ["ES2017", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "baseUrl": ".",
+    "types": ["vite/client"],
     "paths": {
-      "*": ["node_modules/*"]
+      "@/*": ["src/*"]
     }
-  }
+  },
+  "include": ["src", "global.d.ts"]
 }
