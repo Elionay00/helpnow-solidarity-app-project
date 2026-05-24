@@ -1,7 +1,19 @@
+# Dependências
 node_modules/
-.expo/
+
+# Build
 dist/
-build/
-.DS_Store
-*.log
+
+# Ambiente
 .env
+.env.local
+
+# IDEs
+.idea/
+.vscode/
+.expo/
+.idx/
+
+# OS
+.DS_Store
+Thumbs.db
